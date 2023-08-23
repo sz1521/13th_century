@@ -10,7 +10,10 @@
         "lint": "prettier --check src/**/*.ts && eslint src/**/*.ts --fix --max-warnings 0",
         "test": "echo \"Error: no test specified\" && exit 1"
     },
-    "keywords": ["game", "js13kgames"],
+    "keywords": [
+        "game",
+        "js13kgames"
+    ],
     "author": "Sami Heikkinen, Tero Jäntti",
     "license": "MIT",
     "devDependencies": {
