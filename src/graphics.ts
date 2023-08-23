@@ -21,7 +21,7 @@
  * WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
 
-import playerSvg from './player.svg';
+import playerSvg from './images/player.svg';
 
 export const canvas = document.querySelector('canvas') as HTMLCanvasElement;
 export const context: CanvasRenderingContext2D = canvas.getContext('2d')!;
