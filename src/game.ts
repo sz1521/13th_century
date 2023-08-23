@@ -22,13 +22,30 @@
  */
 
 import { canvas, context, playerImage } from './graphics';
+import { Player } from './player';
+
+// These must match the definitions in KeyboardEvent.code
+type Key = 'ArrowLeft' | 'ArrowRight' | 'ArrowUp' | 'ArrowDown';
+
+type Controls = Record<Key, boolean>;
 
 const TIME_STEP = 1000 / 60;
 const MAX_FRAME = TIME_STEP * 5;
 
+const SPEED = 0.1;
+
 let lastTime = 0;
 
-let x = 0;
+const player: Player = new Player();
+player.x = 200;
+player.y = 200;
+
+const controls: Controls = {
+    ['ArrowLeft']: false,
+    ['ArrowRight']: false,
+    ['ArrowUp']: false,
+    ['ArrowDown']: false,
+};
 
 const gameLoop = (t: number): void => {
     requestAnimationFrame(gameLoop);
@@ -41,9 +58,16 @@ const gameLoop = (t: number): void => {
 };
 
 const update = (dt: number): void => {
-    x += 0.01 * dt;
-    if (x > canvas.width) {
-        x = 0;
+    if (controls.ArrowLeft) {
+        player.x -= SPEED * dt;
+    } else if (controls.ArrowRight) {
+        player.x += SPEED * dt;
+    }
+
+    if (controls.ArrowUp) {
+        player.y -= SPEED * dt;
+    } else if (controls.ArrowDown) {
+        player.y += SPEED * dt;
     }
 };
 
@@ -51,9 +75,23 @@ const draw = (): void => {
     context.fillStyle = 'black';
     context.fillRect(0, 0, canvas.width, canvas.height);
 
-    context.drawImage(playerImage, x, 30);
+    context.drawImage(playerImage, player.x, player.y);
+};
+
+const onKeyDown = (event: KeyboardEvent): void => {
+    if (event.code in controls) {
+        controls[event.code as Key] = true;
+    }
+};
+
+const onKeyUp = (event: KeyboardEvent): void => {
+    if (event.code in controls) {
+        controls[event.code as Key] = false;
+    }
 };
 
 export const start = (): void => {
-    requestAnimationFrame(gameLoop);
+    window.addEventListener('keydown', onKeyDown);
+    window.addEventListener('keyup', onKeyUp);
+    window.requestAnimationFrame(gameLoop);
 };
