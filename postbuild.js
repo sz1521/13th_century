@@ -1,9 +1,5 @@
 // Code from: https://github.com/sz-piotr/js13k-webpack-starter/blob/master/postbuild.js
 
-/* eslint-disable no-console */
-/* eslint-disable @typescript-eslint/no-var-requires */
-/* eslint-env node */
-
 const fs = require('fs');
 const path = require('path');
 const archiver = require('archiver');
