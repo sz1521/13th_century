@@ -7,15 +7,19 @@
         "start": "webpack-dev-server --config webpack.dev.js",
         "prebuild": "npm run lint",
         "build": "webpack --config webpack.prod.js",
-        "lint": "prettier --check src/**/*.ts && eslint src/**/*.ts --fix --max-warnings 0",
-        "test": "echo \"Error: no test specified\" && exit 1"
+        "postbuild": "node postbuild.js",
+        "lint": "prettier --check src/**/*.ts && eslint src/**/*.ts --fix --max-warnings 0"
     },
-    "keywords": ["game", "js13kgames"],
+    "keywords": [
+        "game",
+        "js13kgames"
+    ],
     "author": "Sami Heikkinen, Tero Jäntti",
     "license": "MIT",
     "devDependencies": {
         "@typescript-eslint/eslint-plugin": "^6.3.0",
         "@typescript-eslint/parser": "^6.3.0",
+        "archiver": "^6.0.0",
         "clean-webpack-plugin": "^4.0.0",
         "eslint": "^8.47.0",
         "eslint-config-prettier": "^9.0.0",
