@@ -21,39 +21,38 @@
  * WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
 
-import { initializeControls } from './controls';
-import { canvas, context } from './graphics';
-import { Level } from './level';
+// These must match the definitions in KeyboardEvent.code
+export type Key = 'ArrowLeft' | 'ArrowRight' | 'ArrowUp' | 'ArrowDown';
 
-const TIME_STEP = 1000 / 60;
-const MAX_FRAME = TIME_STEP * 5;
+export type Controls = Record<Key, boolean>;
 
-let lastTime = 0;
+const createControls = (): Controls => ({
+    ['ArrowLeft']: false,
+    ['ArrowRight']: false,
+    ['ArrowUp']: false,
+    ['ArrowDown']: false,
+});
 
-const level: Level = new Level();
+let controls: Controls = createControls();
 
-const gameLoop = (t: number): void => {
-    requestAnimationFrame(gameLoop);
-
-    const dt = Math.min(t - lastTime, MAX_FRAME);
-    lastTime = t;
-
-    update(dt);
-    draw();
+const onKeyDown = (event: KeyboardEvent): void => {
+    if (event.code in controls) {
+        controls[event.code as Key] = true;
+    }
 };
 
-const update = (dt: number): void => {
-    level.update(dt);
+const onKeyUp = (event: KeyboardEvent): void => {
+    if (event.code in controls) {
+        controls[event.code as Key] = false;
+    }
 };
 
-const draw = (): void => {
-    context.fillStyle = 'black';
-    context.fillRect(0, 0, canvas.width, canvas.height);
-
-    level.draw();
+export const initializeControls = (): void => {
+    window.addEventListener('keydown', onKeyDown);
+    window.addEventListener('keyup', onKeyUp);
+    window.addEventListener('blur', () => {
+        controls = createControls();
+    });
 };
 
-export const start = (): void => {
-    initializeControls();
-    window.requestAnimationFrame(gameLoop);
-};
+export const getControls = (): Controls => controls;

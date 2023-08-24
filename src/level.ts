@@ -21,39 +21,40 @@
  * WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
 
-import { initializeControls } from './controls';
-import { canvas, context } from './graphics';
-import { Level } from './level';
+import { getControls } from './controls';
+import { context, playerImage } from './graphics';
+import { Player } from './player';
 
-const TIME_STEP = 1000 / 60;
-const MAX_FRAME = TIME_STEP * 5;
+const SPEED = 0.1;
 
-let lastTime = 0;
+export class Level {
+    width = 400;
+    height = 300;
 
-const level: Level = new Level();
+    private player: Player = new Player();
 
-const gameLoop = (t: number): void => {
-    requestAnimationFrame(gameLoop);
+    constructor() {
+        this.player.x = 200;
+        this.player.y = 200;
+    }
 
-    const dt = Math.min(t - lastTime, MAX_FRAME);
-    lastTime = t;
+    update(dt: number): void {
+        const controls = getControls();
 
-    update(dt);
-    draw();
-};
+        if (controls.ArrowLeft) {
+            this.player.x -= SPEED * dt;
+        } else if (controls.ArrowRight) {
+            this.player.x += SPEED * dt;
+        }
 
-const update = (dt: number): void => {
-    level.update(dt);
-};
+        if (controls.ArrowUp) {
+            this.player.y -= SPEED * dt;
+        } else if (controls.ArrowDown) {
+            this.player.y += SPEED * dt;
+        }
+    }
 
-const draw = (): void => {
-    context.fillStyle = 'black';
-    context.fillRect(0, 0, canvas.width, canvas.height);
-
-    level.draw();
-};
-
-export const start = (): void => {
-    initializeControls();
-    window.requestAnimationFrame(gameLoop);
-};
+    draw(): void {
+        context.drawImage(playerImage, this.player.x, this.player.y);
+    }
+}
