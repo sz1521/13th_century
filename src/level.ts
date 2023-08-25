@@ -21,40 +21,67 @@
  * WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
 
+import { Area } from './area';
+import { Camera } from './camera';
 import { getControls } from './controls';
-import { context, playerImage } from './graphics';
+import { GameObject } from './gameobject';
+import { canvas, context, playerImage } from './graphics';
 import { Player } from './player';
 
 const SPEED = 0.1;
 
-export class Level {
+export class Level implements Area {
+    x = 0;
+    y = 0;
     width = 400;
     height = 300;
 
-    private player: Player = new Player();
+    private camera: Camera = new Camera(this, canvas);
+    private player: Player = new Player(playerImage);
 
     constructor() {
         this.player.x = 200;
         this.player.y = 200;
+
+        this.camera.follow(this.player);
     }
 
     update(dt: number): void {
+        this.camera.update();
+
+        this.move(dt, this.player);
+    }
+
+    private move(dt: number, o: GameObject): void {
         const controls = getControls();
 
-        if (controls.ArrowLeft) {
-            this.player.x -= SPEED * dt;
-        } else if (controls.ArrowRight) {
-            this.player.x += SPEED * dt;
+        if (controls.ArrowLeft && this.x <= o.x) {
+            o.x -= SPEED * dt;
+        } else if (
+            controls.ArrowRight &&
+            o.x + o.width <= this.x + this.width
+        ) {
+            o.x += SPEED * dt;
         }
 
-        if (controls.ArrowUp) {
-            this.player.y -= SPEED * dt;
-        } else if (controls.ArrowDown) {
-            this.player.y += SPEED * dt;
+        if (controls.ArrowUp && this.y <= o.y) {
+            o.y -= SPEED * dt;
+        } else if (
+            controls.ArrowDown &&
+            o.y + o.height <= this.y + this.height
+        ) {
+            o.y += SPEED * dt;
         }
     }
 
     draw(): void {
-        context.drawImage(playerImage, this.player.x, this.player.y);
+        context.save();
+        context.translate(canvas.width / 2, canvas.height / 2);
+        context.scale(this.camera.zoom, this.camera.zoom);
+        context.translate(-this.camera.x, -this.camera.y);
+
+        this.player.draw();
+
+        context.restore();
     }
 }

@@ -21,27 +21,9 @@
  * WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
 
-import { GameObject } from './gameobject';
-import { context } from './graphics';
-
-export class Player implements GameObject {
-    x: number = 0;
-    y: number = 0;
-
-    get width() {
-        return this.image.width;
-    }
-    get height() {
-        // For pseudo-3D -effect.
-        return this.image.height / 2;
-    }
-
-    constructor(public image: HTMLImageElement) {}
-
-    draw(): void {
-        // For pseudo-3D -effect.
-        const y = this.y - this.height;
-
-        context.drawImage(this.image, this.x, y);
-    }
-}
+/*
+ * Returns a random number between 0 and max.
+ */
+export const random = (max = 1): number => {
+    return Math.random() * max;
+};

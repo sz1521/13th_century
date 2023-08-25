@@ -21,27 +21,9 @@
  * WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
 
-import { GameObject } from './gameobject';
-import { context } from './graphics';
-
-export class Player implements GameObject {
-    x: number = 0;
-    y: number = 0;
-
-    get width() {
-        return this.image.width;
-    }
-    get height() {
-        // For pseudo-3D -effect.
-        return this.image.height / 2;
-    }
-
-    constructor(public image: HTMLImageElement) {}
-
-    draw(): void {
-        // For pseudo-3D -effect.
-        const y = this.y - this.height;
-
-        context.drawImage(this.image, this.x, y);
-    }
+export interface GameObject {
+    x: number;
+    y: number;
+    width: number;
+    height: number;
 }
