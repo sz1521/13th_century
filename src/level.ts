@@ -26,7 +26,11 @@ import { Camera } from './camera';
 import { getControls } from './controls';
 import { GameObject } from './gameobject';
 import { canvas, context, playerImage } from './graphics';
+import { Grid } from './grid';
 import { Player } from './player';
+
+const BLOCK_WIDTH = 50;
+const BLOCK_HEIGHT = 50;
 
 const SPEED = 0.1;
 
@@ -36,12 +40,32 @@ export class Level implements Area {
     width = 400;
     height = 300;
 
+    private blocks: Grid<boolean> = new Grid<boolean>(
+        this.width / BLOCK_WIDTH,
+        this.height / BLOCK_HEIGHT,
+    );
     private camera: Camera = new Camera(this, canvas);
     private player: Player = new Player(playerImage);
 
     constructor() {
         this.player.x = 200;
         this.player.y = 200;
+
+        this.blocks.set(0, 0, true);
+
+        this.blocks.set(3, 2, true);
+        this.blocks.set(4, 2, true);
+
+        this.blocks.set(2, 4, true);
+        this.blocks.set(3, 4, true);
+
+        this.blocks.set(6, 3, true);
+        this.blocks.set(6, 4, true);
+
+        this.blocks.set(6, 0, true);
+        this.blocks.set(7, 0, true);
+        this.blocks.set(6, 1, true);
+        this.blocks.set(7, 1, true);
 
         this.camera.follow(this.player);
     }
@@ -76,11 +100,53 @@ export class Level implements Area {
 
     draw(): void {
         context.save();
+
+        // Apply camera
         context.translate(canvas.width / 2, canvas.height / 2);
         context.scale(this.camera.zoom, this.camera.zoom);
         context.translate(-this.camera.x, -this.camera.y);
 
-        this.player.draw();
+        // Fill background
+        context.fillStyle = 'rgb(20, 40, 60)';
+        context.fillRect(this.x, this.y, this.width, this.height);
+
+        // Draw blocks
+        for (let gridY = 0; gridY < this.blocks.yCount; gridY++) {
+            for (let gridX = 0; gridX < this.blocks.xCount; gridX++) {
+                const block = this.blocks.get(gridX, gridY);
+                if (block) {
+                    const x = gridX * BLOCK_WIDTH;
+                    const y = gridY * BLOCK_HEIGHT;
+
+                    context.fillStyle = 'rgb(30, 60, 60)';
+                    context.fillRect(
+                        x,
+                        y - BLOCK_HEIGHT / 2,
+                        BLOCK_WIDTH,
+                        BLOCK_HEIGHT,
+                    );
+
+                    context.fillStyle = 'rgb(50, 100, 100)';
+                    context.fillRect(
+                        x,
+                        y + BLOCK_HEIGHT / 2,
+                        BLOCK_WIDTH,
+                        BLOCK_HEIGHT / 2,
+                    );
+                }
+            }
+
+            // Draw characters in the right row, such that they appear
+            // correctly behind or in front of the walls.
+            const playerBottomY = this.player.y + this.player.height;
+            const rowTopY = gridY * BLOCK_HEIGHT + BLOCK_HEIGHT / 2;
+            const rowBottomY =
+                gridY * BLOCK_HEIGHT + BLOCK_HEIGHT + BLOCK_HEIGHT / 2;
+
+            if (rowTopY <= playerBottomY && playerBottomY < rowBottomY) {
+                this.player.draw();
+            }
+        }
 
         context.restore();
     }
