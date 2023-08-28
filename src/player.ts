@@ -21,27 +21,58 @@
  * WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
 
+import { Direction } from './area';
 import { GameObject } from './gameobject';
-import { context } from './graphics';
+import {
+    context,
+    playerNorthStandImage,
+    playerSouthStandImage,
+    playerWestStandImage,
+} from './graphics';
+
+const imageWidth = playerSouthStandImage.width;
+const imageHeight = playerSouthStandImage.height;
 
 export class Player implements GameObject {
     x: number = 0;
     y: number = 0;
+    direction: Direction = Direction.Down;
 
     get width() {
-        return this.image.width;
+        return imageWidth;
     }
     get height() {
         // For pseudo-3D -effect.
-        return this.image.height / 2;
+        return imageHeight / 2;
     }
 
-    constructor(public image: HTMLImageElement) {}
-
     draw(): void {
-        // For pseudo-3D -effect.
-        const y = this.y - this.height;
+        context.save();
 
-        context.drawImage(this.image, this.x, y);
+        const x = this.x;
+        const y = this.y - this.height; // For pseudo-3D -effect.
+
+        context.translate(x, y);
+
+        let image: CanvasImageSource;
+
+        if (this.direction === Direction.Left) {
+            image = playerWestStandImage;
+        } else if (this.direction === Direction.Right) {
+            image = playerWestStandImage;
+
+            // mirror image
+            context.translate(image.width / 2, 0);
+            context.scale(-1, 1);
+            context.translate(-image.width / 2, 0);
+        } else if (this.direction === Direction.Up) {
+            image = playerNorthStandImage;
+        } else {
+            image = playerSouthStandImage;
+        }
+
+        context.drawImage(image, 0, 0);
+
+        context.restore();
     }
 }

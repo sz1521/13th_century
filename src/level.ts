@@ -21,31 +21,34 @@
  * WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
 
-import { Area } from './area';
+import { Area, Direction } from './area';
 import { Camera } from './camera';
 import { getControls } from './controls';
 import { GameObject } from './gameobject';
-import { canvas, context, playerImage } from './graphics';
+import { canvas, context } from './graphics';
 import { Grid } from './grid';
 import { Player } from './player';
 
-const BLOCK_WIDTH = 50;
-const BLOCK_HEIGHT = 50;
+const BLOCK_WIDTH = 100;
+const BLOCK_HEIGHT = 100;
+
+const BLOCK_X_COUNT = 10;
+const BLOCK_Y_COUNT = 10;
 
 const SPEED = 0.1;
 
 export class Level implements Area {
     x = 0;
     y = 0;
-    width = 400;
-    height = 300;
+    width = BLOCK_X_COUNT * BLOCK_WIDTH;
+    height = BLOCK_Y_COUNT * BLOCK_HEIGHT;
 
     private blocks: Grid<boolean> = new Grid<boolean>(
-        this.width / BLOCK_WIDTH,
-        this.height / BLOCK_HEIGHT,
+        BLOCK_X_COUNT,
+        BLOCK_Y_COUNT,
     );
     private camera: Camera = new Camera(this, canvas);
-    private player: Player = new Player(playerImage);
+    private player: Player = new Player();
 
     constructor() {
         this.player.x = 200;
@@ -68,6 +71,7 @@ export class Level implements Area {
         this.blocks.set(7, 1, true);
 
         this.camera.follow(this.player);
+        this.camera.zoom = 0.5;
     }
 
     update(dt: number): void {
@@ -78,23 +82,32 @@ export class Level implements Area {
 
     private move(dt: number, o: GameObject): void {
         const controls = getControls();
+        let dx = 0;
+        let dy = 0;
 
         if (controls.ArrowLeft && this.x <= o.x) {
-            o.x -= SPEED * dt;
+            dx = -SPEED * dt;
         } else if (
             controls.ArrowRight &&
             o.x + o.width <= this.x + this.width
         ) {
-            o.x += SPEED * dt;
-        }
-
-        if (controls.ArrowUp && this.y <= o.y) {
-            o.y -= SPEED * dt;
+            dx = SPEED * dt;
+        } else if (controls.ArrowUp && this.y <= o.y) {
+            dy = -SPEED * dt;
         } else if (
             controls.ArrowDown &&
             o.y + o.height <= this.y + this.height
         ) {
-            o.y += SPEED * dt;
+            dy = SPEED * dt;
+        }
+
+        if (dx !== 0) {
+            this.player.x += dx;
+            this.player.direction = dx < 0 ? Direction.Left : Direction.Right;
+        }
+        if (dy !== 0) {
+            this.player.y += dy;
+            this.player.direction = dy < 0 ? Direction.Up : Direction.Down;
         }
     }
 

@@ -21,7 +21,9 @@
  * WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
 
-import playerSvg from './images/player.svg';
+import playerNorthStandSvg from './images/player_n_stand.svg';
+import playerSouthStandSvg from './images/player_s_stand.svg';
+import playerWestStandSvg from './images/player_w_stand.svg';
 
 export const canvas = document.querySelector('canvas') as HTMLCanvasElement;
 export const context: CanvasRenderingContext2D = canvas.getContext('2d')!;
@@ -32,4 +34,6 @@ const loadImage = (url: string): HTMLImageElement => {
     return img;
 };
 
-export const playerImage = loadImage(playerSvg);
+export const playerNorthStandImage = loadImage(playerNorthStandSvg);
+export const playerSouthStandImage = loadImage(playerSouthStandSvg);
+export const playerWestStandImage = loadImage(playerWestStandSvg);

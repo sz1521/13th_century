@@ -21,6 +21,13 @@
  * WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
 
+export enum Direction {
+    Left,
+    Right,
+    Up,
+    Down,
+}
+
 export interface Dimensions {
     width: number;
     height: number;

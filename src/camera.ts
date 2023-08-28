@@ -41,7 +41,6 @@ export class Camera {
     ) {}
 
     follow(target: GameObject): void {
-        this.zoom = 1;
         this.target = target;
     }
 
