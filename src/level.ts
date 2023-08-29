@@ -21,7 +21,7 @@
  * WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
 
-import { Area, Direction } from './area';
+import { Area } from './area';
 import { Camera } from './camera';
 import { getControls } from './controls';
 import { GameObject } from './gameobject';
@@ -101,14 +101,7 @@ export class Level implements Area {
             dy = SPEED * dt;
         }
 
-        if (dx !== 0) {
-            this.player.x += dx;
-            this.player.direction = dx < 0 ? Direction.Left : Direction.Right;
-        }
-        if (dy !== 0) {
-            this.player.y += dy;
-            this.player.direction = dy < 0 ? Direction.Up : Direction.Down;
-        }
+        this.player.move(dx, dy);
     }
 
     draw(): void {

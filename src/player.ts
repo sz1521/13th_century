@@ -23,20 +23,49 @@
 
 import { Direction } from './area';
 import { GameObject } from './gameobject';
+import { context, playerSouthStandImage } from './graphics';
 import {
-    context,
-    playerNorthStandImage,
-    playerSouthStandImage,
-    playerWestStandImage,
-} from './graphics';
+    AnimationDefinition,
+    RunningAnimation,
+    getFrame,
+    playerNorthStandAnimation,
+    playerNorthWalkAnimation,
+    playerSouthStandAnimation,
+    playerSouthWalkAnimation,
+    playerWestStandAnimation,
+    playerWestWalkAnimation,
+} from './animations';
 
 const imageWidth = playerSouthStandImage.width;
 const imageHeight = playerSouthStandImage.height;
 
+const selectAnimation = (
+    direction: Direction,
+    walk: boolean,
+): AnimationDefinition => {
+    switch (direction) {
+        case Direction.Left:
+        case Direction.Right:
+            return walk ? playerWestWalkAnimation : playerWestStandAnimation;
+        case Direction.Up:
+            return walk ? playerNorthWalkAnimation : playerNorthStandAnimation;
+        case Direction.Down:
+        default:
+            return walk ? playerSouthWalkAnimation : playerSouthStandAnimation;
+    }
+};
+
 export class Player implements GameObject {
     x: number = 0;
     y: number = 0;
-    direction: Direction = Direction.Down;
+
+    private direction: Direction = Direction.Down;
+    private isMoving: boolean = false;
+
+    private animation: RunningAnimation = {
+        definition: playerSouthStandAnimation,
+        startTime: performance.now(),
+    };
 
     get width() {
         return imageWidth;
@@ -44,6 +73,34 @@ export class Player implements GameObject {
     get height() {
         // For pseudo-3D -effect.
         return imageHeight / 2;
+    }
+
+    move(dx: number, dy: number): void {
+        const oldDirection = this.direction;
+        let newDirection = this.direction;
+
+        const wasMoving = this.isMoving;
+        let isMoving = false;
+
+        if (dx !== 0) {
+            this.x += dx;
+            newDirection = dx < 0 ? Direction.Left : Direction.Right;
+            isMoving = true;
+        }
+        if (dy !== 0) {
+            this.y += dy;
+            newDirection = dy < 0 ? Direction.Up : Direction.Down;
+            isMoving = true;
+        }
+
+        if (newDirection !== oldDirection || isMoving !== wasMoving) {
+            this.direction = newDirection;
+            this.isMoving = isMoving;
+            this.animation = {
+                definition: selectAnimation(newDirection, dx !== 0 || dy !== 0),
+                startTime: performance.now(),
+            };
+        }
     }
 
     draw(): void {
@@ -54,21 +111,14 @@ export class Player implements GameObject {
 
         context.translate(x, y);
 
-        let image: CanvasImageSource;
+        const now = performance.now();
+        const image = getFrame(this.animation, now);
 
-        if (this.direction === Direction.Left) {
-            image = playerWestStandImage;
-        } else if (this.direction === Direction.Right) {
-            image = playerWestStandImage;
-
+        if (this.direction === Direction.Right) {
             // mirror image
             context.translate(image.width / 2, 0);
             context.scale(-1, 1);
             context.translate(-image.width / 2, 0);
-        } else if (this.direction === Direction.Up) {
-            image = playerNorthStandImage;
-        } else {
-            image = playerSouthStandImage;
         }
 
         context.drawImage(image, 0, 0);
