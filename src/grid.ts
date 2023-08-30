@@ -21,39 +21,23 @@
  * WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
 
-import { initializeControls } from './controls';
-import { canvas, context } from './graphics';
-import { Level } from './level';
+export class Grid<T> {
+    xCount: number;
+    yCount: number;
 
-const TIME_STEP = 1000 / 60;
-const MAX_FRAME = TIME_STEP * 5;
+    private items: T[];
 
-let lastTime = 0;
+    constructor(xCount: number, yCount: number) {
+        this.xCount = xCount;
+        this.yCount = yCount;
+        this.items = new Array<T>(xCount * yCount);
+    }
 
-const level: Level = new Level();
+    get(xIndex: number, yIndex: number): T | undefined {
+        return this.items[yIndex * this.xCount + xIndex];
+    }
 
-const gameLoop = (t: number): void => {
-    requestAnimationFrame(gameLoop);
-
-    const dt = Math.min(t - lastTime, MAX_FRAME);
-    lastTime = t;
-
-    update(dt);
-    draw();
-};
-
-const update = (dt: number): void => {
-    level.update(dt);
-};
-
-const draw = (): void => {
-    context.fillStyle = 'black';
-    context.fillRect(0, 0, canvas.width, canvas.height);
-
-    level.draw();
-};
-
-export const start = (): void => {
-    initializeControls();
-    window.requestAnimationFrame(gameLoop);
-};
+    set(xIndex: number, yIndex: number, value: T): void {
+        this.items[yIndex * this.xCount + xIndex] = value;
+    }
+}

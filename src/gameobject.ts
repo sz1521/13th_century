@@ -21,39 +21,9 @@
  * WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
 
-import { initializeControls } from './controls';
-import { canvas, context } from './graphics';
-import { Level } from './level';
-
-const TIME_STEP = 1000 / 60;
-const MAX_FRAME = TIME_STEP * 5;
-
-let lastTime = 0;
-
-const level: Level = new Level();
-
-const gameLoop = (t: number): void => {
-    requestAnimationFrame(gameLoop);
-
-    const dt = Math.min(t - lastTime, MAX_FRAME);
-    lastTime = t;
-
-    update(dt);
-    draw();
-};
-
-const update = (dt: number): void => {
-    level.update(dt);
-};
-
-const draw = (): void => {
-    context.fillStyle = 'black';
-    context.fillRect(0, 0, canvas.width, canvas.height);
-
-    level.draw();
-};
-
-export const start = (): void => {
-    initializeControls();
-    window.requestAnimationFrame(gameLoop);
-};
+export interface GameObject {
+    x: number;
+    y: number;
+    width: number;
+    height: number;
+}
