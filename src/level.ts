@@ -24,7 +24,6 @@
 import { Area } from './area';
 import { Camera } from './camera';
 import { getControls } from './controls';
-import { GameObject } from './gameobject';
 import { canvas, context } from './graphics';
 import { Grid } from './grid';
 import { Player } from './player';
@@ -80,10 +79,12 @@ export class Level implements Area {
         this.move(dt, this.player);
     }
 
-    private move(dt: number, o: GameObject): void {
+    private move(dt: number, o: Player): void {
         const controls = getControls();
         let dx = 0;
         let dy = 0;
+
+        // Calculate movement according to controls
 
         if (controls.ArrowLeft && this.x <= o.x) {
             dx = -SPEED * dt;
@@ -101,7 +102,41 @@ export class Level implements Area {
             dy = SPEED * dt;
         }
 
-        this.player.move(dx, dy);
+        const newX = o.x + dx;
+        const newY = o.y + dy;
+
+        // Find the four blocks that the object may be touching
+        // (assuming that the object is not bigger than one block)
+
+        const minXIndex: number = Math.floor((newX - this.x) / BLOCK_WIDTH);
+        const maxXIndex: number = Math.floor(
+            (newX + o.width - this.x) / BLOCK_WIDTH,
+        );
+        const minYIndex: number = Math.floor((newY - this.y) / BLOCK_HEIGHT);
+        const maxYIndex: number = Math.floor(
+            (newY + o.height - this.y) / BLOCK_HEIGHT,
+        );
+
+        const blockUpLeft = this.blocks.get(minXIndex, minYIndex);
+        const blockDownLeft = this.blocks.get(minXIndex, maxYIndex);
+        const blockUpRight = this.blocks.get(maxXIndex, minYIndex);
+        const blockDownRight = this.blocks.get(maxXIndex, maxYIndex);
+
+        // Adjust movement if hitting a block
+
+        if (dx < 0 && (blockUpLeft || blockDownLeft)) {
+            dx = 0;
+        } else if (dx > 0 && (blockUpRight || blockDownRight)) {
+            dx = 0;
+        }
+
+        if (dy < 0 && (blockUpLeft || blockUpRight)) {
+            dy = 0;
+        } else if (dy > 0 && (blockDownLeft || blockDownRight)) {
+            dy = 0;
+        }
+
+        o.move(dx, dy);
     }
 
     draw(): void {
