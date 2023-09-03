@@ -121,7 +121,7 @@ export class Player implements GameObject {
             context.translate(-image.width / 2, 0);
         }
 
-        context.drawImage(image, 0, 0);
+        context.drawImage(image, 0, 0, 50, 135);
 
         context.restore();
     }
