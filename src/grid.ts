@@ -27,10 +27,10 @@ export class Grid<T> {
 
     private items: T[];
 
-    constructor(xCount: number, yCount: number) {
+    constructor(xCount: number, yCount: number, defaultValue: T) {
         this.xCount = xCount;
         this.yCount = yCount;
-        this.items = new Array<T>(xCount * yCount);
+        this.items = new Array<T>(xCount * yCount).fill(defaultValue);
     }
 
     get(xIndex: number, yIndex: number): T | undefined {

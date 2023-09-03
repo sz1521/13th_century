@@ -23,7 +23,7 @@
 
 import { Direction } from './area';
 import { GameObject } from './gameobject';
-import { context, playerSouthStandImage } from './graphics';
+import { context } from './graphics';
 import {
     AnimationDefinition,
     RunningAnimation,
@@ -36,8 +36,13 @@ import {
     playerWestWalkAnimation,
 } from './animations';
 
-const imageWidth = playerSouthStandImage.width;
-const imageHeight = playerSouthStandImage.height;
+const imageWidth = 50;
+const imageHeight = 135;
+
+const collisionWidth = imageWidth * 0.6;
+const collisionHeight = collisionWidth / 2;
+
+const xMargin = (imageWidth - collisionWidth) / 2;
 
 const selectAnimation = (
     direction: Direction,
@@ -59,6 +64,9 @@ export class Player implements GameObject {
     x: number = 0;
     y: number = 0;
 
+    width = collisionWidth;
+    height = collisionHeight;
+
     private direction: Direction = Direction.Down;
     private isMoving: boolean = false;
 
@@ -66,14 +74,6 @@ export class Player implements GameObject {
         definition: playerSouthStandAnimation,
         startTime: performance.now(),
     };
-
-    get width() {
-        return imageWidth;
-    }
-    get height() {
-        // For pseudo-3D -effect.
-        return imageHeight / 2;
-    }
 
     move(dx: number, dy: number): void {
         const oldDirection = this.direction;
@@ -106,8 +106,8 @@ export class Player implements GameObject {
     draw(): void {
         context.save();
 
-        const x = this.x;
-        const y = this.y - this.height; // For pseudo-3D -effect.
+        const x = this.x - xMargin;
+        const y = this.y - (imageHeight - this.height);
 
         context.translate(x, y);
 
@@ -121,8 +121,13 @@ export class Player implements GameObject {
             context.translate(-image.width / 2, 0);
         }
 
-        context.drawImage(image, 0, 0, 50, 135);
+        context.drawImage(image, 0, 0, imageWidth, imageHeight);
 
         context.restore();
+
+        // DRAWING COLLISION AREA FOR DEBUGGING:
+        // (must be after context.restore() call)
+        // context.strokeStyle = 'red';
+        // context.strokeRect(this.x, this.y, this.width, this.height);
     }
 }
