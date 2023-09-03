@@ -18,8 +18,8 @@ Building the zip package:
 
 # Authors
 
-- [Sami Heikkinen](https://github.com/sz1521)
-- [Tero Jäntti](https://github.com/tkjantti)
+-   [Sami Heikkinen](https://github.com/sz1521)
+-   [Tero Jäntti](https://github.com/tkjantti)
 
 # License
 

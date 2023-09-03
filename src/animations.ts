@@ -25,15 +25,12 @@ import {
     playerNorthStandImage,
     playerNorthWalk1Image,
     playerNorthWalk2Image,
-    playerNorthWalk3Image,
     playerSouthStandImage,
-    playerSouthWalk1mage,
-    playerSouthWalk2mage,
-    playerSouthWalk3mage,
+    playerSouthWalk1Image,
+    playerSouthWalk2Image,
     playerWestStandImage,
     playerWestWalk1Image,
     playerWestWalk2Image,
-    playerWestWalk3Image,
 } from './graphics';
 
 export interface AnimationDefinition {
@@ -64,7 +61,7 @@ export const playerWestStandAnimation: AnimationDefinition = {
 
 export const playerWestWalkAnimation: AnimationDefinition = {
     fps: 5,
-    frames: [playerWestWalk1Image, playerWestWalk2Image, playerWestWalk3Image],
+    frames: [playerWestWalk1Image, playerWestWalk2Image, playerWestStandImage],
 };
 
 export const playerNorthStandAnimation: AnimationDefinition = {
@@ -77,7 +74,7 @@ export const playerNorthWalkAnimation: AnimationDefinition = {
     frames: [
         playerNorthWalk1Image,
         playerNorthWalk2Image,
-        playerNorthWalk3Image,
+        playerNorthStandImage,
     ],
 };
 
@@ -88,5 +85,9 @@ export const playerSouthStandAnimation: AnimationDefinition = {
 
 export const playerSouthWalkAnimation: AnimationDefinition = {
     fps: 5,
-    frames: [playerSouthWalk1mage, playerSouthWalk2mage, playerSouthWalk3mage],
+    frames: [
+        playerSouthWalk1Image,
+        playerSouthWalk2Image,
+        playerSouthStandImage,
+    ],
 };
