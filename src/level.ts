@@ -31,10 +31,24 @@ import { Player } from './player';
 const BLOCK_WIDTH = 100;
 const BLOCK_HEIGHT = 100;
 
-const BLOCK_X_COUNT = 10;
-const BLOCK_Y_COUNT = 10;
+const BLOCK_X_COUNT = 30;
+const BLOCK_Y_COUNT = 30;
 
-const SPEED = 0.1;
+const SPEED = 0.3;
+
+const carveRectange = (
+    blocks: Grid<boolean>,
+    xBegin: number,
+    xEnd: number,
+    yBegin: number,
+    yEnd: number,
+): void => {
+    for (let gridY = yBegin; gridY < yEnd; gridY++) {
+        for (let gridX = xBegin; gridX < xEnd; gridX++) {
+            blocks.set(gridX, gridY, false);
+        }
+    }
+};
 
 export class Level implements Area {
     x = 0;
@@ -45,29 +59,24 @@ export class Level implements Area {
     private blocks: Grid<boolean> = new Grid<boolean>(
         BLOCK_X_COUNT,
         BLOCK_Y_COUNT,
+        true,
     );
     private camera: Camera = new Camera(this, canvas);
     private player: Player = new Player();
 
     constructor() {
-        this.player.x = 200;
-        this.player.y = 200;
+        this.player.x = 2 * BLOCK_WIDTH;
+        this.player.y = 28 * BLOCK_HEIGHT;
 
-        this.blocks.set(0, 0, true);
-
-        this.blocks.set(3, 2, true);
-        this.blocks.set(4, 2, true);
-
-        this.blocks.set(2, 4, true);
-        this.blocks.set(3, 4, true);
-
-        this.blocks.set(6, 3, true);
-        this.blocks.set(6, 4, true);
-
-        this.blocks.set(6, 0, true);
-        this.blocks.set(7, 0, true);
-        this.blocks.set(6, 1, true);
-        this.blocks.set(7, 1, true);
+        carveRectange(this.blocks, 1, 6, 20, 29); // bottom-left room (start)
+        carveRectange(this.blocks, 3, 4, 19, 20); // doorway
+        carveRectange(this.blocks, 1, 9, 12, 19);
+        carveRectange(this.blocks, 2, 3, 11, 12); // doorway
+        carveRectange(this.blocks, 1, 9, 1, 11); // top-left room
+        carveRectange(this.blocks, 9, 10, 4, 8); // doorway
+        carveRectange(this.blocks, 10, 29, 1, 11); // top-right room
+        carveRectange(this.blocks, 19, 21, 11, 14); // hallway
+        carveRectange(this.blocks, 15, 28, 14, 28); // bottom-right room
 
         this.camera.follow(this.player);
         this.camera.zoom = 0.5;
