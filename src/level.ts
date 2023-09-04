@@ -26,57 +26,27 @@ import { Camera } from './camera';
 import { getControls } from './controls';
 import { canvas, context } from './graphics';
 import { Grid } from './grid';
+import { BlockType, createMap } from './map';
 import { Player } from './player';
 
 const BLOCK_WIDTH = 100;
 const BLOCK_HEIGHT = 100;
 
-const BLOCK_X_COUNT = 30;
-const BLOCK_Y_COUNT = 30;
-
 const SPEED = 0.3;
 
-const carveRectange = (
-    blocks: Grid<boolean>,
-    xBegin: number,
-    xEnd: number,
-    yBegin: number,
-    yEnd: number,
-): void => {
-    for (let gridY = yBegin; gridY < yEnd; gridY++) {
-        for (let gridX = xBegin; gridX < xEnd; gridX++) {
-            blocks.set(gridX, gridY, false);
-        }
-    }
-};
-
 export class Level implements Area {
-    x = 0;
-    y = 0;
-    width = BLOCK_X_COUNT * BLOCK_WIDTH;
-    height = BLOCK_Y_COUNT * BLOCK_HEIGHT;
-
-    private blocks: Grid<boolean> = new Grid<boolean>(
-        BLOCK_X_COUNT,
-        BLOCK_Y_COUNT,
-        true,
-    );
+    private map: Grid<BlockType> = createMap();
     private camera: Camera = new Camera(this, canvas);
     private player: Player = new Player();
+
+    x = 0;
+    y = 0;
+    width = this.map.xCount * BLOCK_WIDTH;
+    height = this.map.yCount * BLOCK_HEIGHT;
 
     constructor() {
         this.player.x = 2 * BLOCK_WIDTH;
         this.player.y = 28 * BLOCK_HEIGHT;
-
-        carveRectange(this.blocks, 1, 6, 20, 29); // bottom-left room (start)
-        carveRectange(this.blocks, 3, 4, 19, 20); // doorway
-        carveRectange(this.blocks, 1, 9, 12, 19);
-        carveRectange(this.blocks, 2, 3, 11, 12); // doorway
-        carveRectange(this.blocks, 1, 9, 1, 11); // top-left room
-        carveRectange(this.blocks, 9, 10, 4, 8); // doorway
-        carveRectange(this.blocks, 10, 29, 1, 11); // top-right room
-        carveRectange(this.blocks, 19, 21, 11, 14); // hallway
-        carveRectange(this.blocks, 15, 28, 14, 28); // bottom-right room
 
         this.camera.follow(this.player);
         this.camera.zoom = 0.5;
@@ -126,10 +96,10 @@ export class Level implements Area {
             (newY + o.height - this.y) / BLOCK_HEIGHT,
         );
 
-        const blockUpLeft = this.blocks.get(minXIndex, minYIndex);
-        const blockDownLeft = this.blocks.get(minXIndex, maxYIndex);
-        const blockUpRight = this.blocks.get(maxXIndex, minYIndex);
-        const blockDownRight = this.blocks.get(maxXIndex, maxYIndex);
+        const blockUpLeft = this.map.get(minXIndex, minYIndex);
+        const blockDownLeft = this.map.get(minXIndex, maxYIndex);
+        const blockUpRight = this.map.get(maxXIndex, minYIndex);
+        const blockDownRight = this.map.get(maxXIndex, maxYIndex);
 
         // Adjust movement if hitting a block
 
@@ -161,9 +131,9 @@ export class Level implements Area {
         context.fillRect(this.x, this.y, this.width, this.height);
 
         // Draw blocks
-        for (let gridY = 0; gridY < this.blocks.yCount; gridY++) {
-            for (let gridX = 0; gridX < this.blocks.xCount; gridX++) {
-                const block = this.blocks.get(gridX, gridY);
+        for (let gridY = 0; gridY < this.map.yCount; gridY++) {
+            for (let gridX = 0; gridX < this.map.xCount; gridX++) {
+                const block = this.map.get(gridX, gridY);
                 if (block) {
                     const x = gridX * BLOCK_WIDTH;
                     const y = gridY * BLOCK_HEIGHT;
