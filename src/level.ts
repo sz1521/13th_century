@@ -48,6 +48,16 @@ export class Level implements Area {
         this.player.x = 2 * BLOCK_WIDTH;
         this.player.y = 28 * BLOCK_HEIGHT;
 
+        this.map.set(1, 24, BlockType.Grass);
+        this.map.set(2, 24, BlockType.Grass);
+        this.map.set(3, 24, BlockType.Grass);
+        this.map.set(1, 25, BlockType.Grass);
+        this.map.set(2, 25, BlockType.Wall);
+        this.map.set(3, 25, BlockType.Grass);
+        this.map.set(1, 26, BlockType.Grass);
+        this.map.set(2, 26, BlockType.Grass);
+        this.map.set(3, 26, BlockType.Grass);
+
         this.camera.follow(this.player);
         this.camera.zoom = 0.5;
     }
@@ -96,10 +106,14 @@ export class Level implements Area {
             (newY + o.height - this.y) / BLOCK_HEIGHT,
         );
 
-        const blockUpLeft = this.map.get(minXIndex, minYIndex);
-        const blockDownLeft = this.map.get(minXIndex, maxYIndex);
-        const blockUpRight = this.map.get(maxXIndex, minYIndex);
-        const blockDownRight = this.map.get(maxXIndex, maxYIndex);
+        const blockUpLeft =
+            this.map.get(minXIndex, minYIndex) === BlockType.Wall;
+        const blockDownLeft =
+            this.map.get(minXIndex, maxYIndex) === BlockType.Wall;
+        const blockUpRight =
+            this.map.get(maxXIndex, minYIndex) === BlockType.Wall;
+        const blockDownRight =
+            this.map.get(maxXIndex, maxYIndex) === BlockType.Wall;
 
         // Adjust movement if hitting a block
 
@@ -134,34 +148,46 @@ export class Level implements Area {
         for (let gridY = 0; gridY < this.map.yCount; gridY++) {
             for (let gridX = 0; gridX < this.map.xCount; gridX++) {
                 const block = this.map.get(gridX, gridY);
-                if (block) {
-                    const x = gridX * BLOCK_WIDTH;
-                    const y = gridY * BLOCK_HEIGHT;
+                const x = gridX * BLOCK_WIDTH;
+                const y = gridY * BLOCK_HEIGHT;
 
-                    context.fillStyle = 'rgb(30, 60, 60)';
-                    context.fillRect(
-                        x,
-                        y - BLOCK_HEIGHT / 2,
-                        BLOCK_WIDTH,
-                        BLOCK_HEIGHT,
-                    );
+                switch (block) {
+                    case BlockType.Wall: {
+                        context.fillStyle = 'rgb(30, 60, 60)';
+                        context.fillRect(
+                            x,
+                            y - BLOCK_HEIGHT / 2,
+                            BLOCK_WIDTH,
+                            BLOCK_HEIGHT,
+                        );
 
-                    context.fillStyle = 'rgb(50, 100, 100)';
-                    context.fillRect(
-                        x,
-                        y + BLOCK_HEIGHT / 2,
-                        BLOCK_WIDTH,
-                        BLOCK_HEIGHT / 2,
-                    );
+                        context.fillStyle = 'rgb(50, 100, 100)';
+                        context.fillRect(
+                            x,
+                            y + BLOCK_HEIGHT / 2,
+                            BLOCK_WIDTH,
+                            BLOCK_HEIGHT / 2,
+                        );
+                        break;
+                    }
+
+                    case BlockType.Grass: {
+                        context.fillStyle = 'green';
+                        context.fillRect(x, y, BLOCK_WIDTH, BLOCK_HEIGHT);
+                        break;
+                    }
+
+                    case BlockType.Floor:
+                    default:
+                        break;
                 }
             }
 
             // Draw characters in the right row, such that they appear
             // correctly behind or in front of the walls.
             const playerBottomY = this.player.y + this.player.height;
-            const rowTopY = gridY * BLOCK_HEIGHT + BLOCK_HEIGHT / 2;
-            const rowBottomY =
-                gridY * BLOCK_HEIGHT + BLOCK_HEIGHT + BLOCK_HEIGHT / 2;
+            const rowTopY = gridY * BLOCK_HEIGHT;
+            const rowBottomY = gridY * BLOCK_HEIGHT + BLOCK_HEIGHT;
 
             if (rowTopY <= playerBottomY && playerBottomY < rowBottomY) {
                 this.player.draw();
