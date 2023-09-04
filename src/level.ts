@@ -28,6 +28,7 @@ import { canvas, context } from './graphics';
 import { Grid } from './grid';
 import { BlockType, createMap } from './map';
 import { Player } from './player';
+import { Tapio } from './tapio';
 
 const BLOCK_WIDTH = 100;
 const BLOCK_HEIGHT = 100;
@@ -38,6 +39,7 @@ export class Level implements Area {
     private map: Grid<BlockType> = createMap();
     private camera: Camera = new Camera(this, canvas);
     private player: Player = new Player();
+    private tapio: Tapio = new Tapio(0, 20);
 
     x = 0;
     y = 0;
@@ -48,23 +50,16 @@ export class Level implements Area {
         this.player.x = 2 * BLOCK_WIDTH;
         this.player.y = 28 * BLOCK_HEIGHT;
 
-        this.map.set(1, 24, BlockType.Grass);
-        this.map.set(2, 24, BlockType.Grass);
-        this.map.set(3, 24, BlockType.Grass);
-        this.map.set(1, 25, BlockType.Grass);
-        this.map.set(2, 25, BlockType.Wall);
-        this.map.set(3, 25, BlockType.Grass);
-        this.map.set(1, 26, BlockType.Grass);
-        this.map.set(2, 26, BlockType.Grass);
-        this.map.set(3, 26, BlockType.Grass);
-
         this.camera.follow(this.player);
         this.camera.zoom = 0.5;
     }
 
     update(dt: number): void {
+        const now = performance.now();
+
         this.camera.update();
 
+        this.tapio.update(this.map, now);
         this.move(dt, this.player);
     }
 
@@ -192,6 +187,16 @@ export class Level implements Area {
             if (rowTopY <= playerBottomY && playerBottomY < rowBottomY) {
                 this.player.draw();
             }
+
+            // For debug drawing:
+            //
+            // context.strokeStyle = 'orange';
+            // context.strokeRect(
+            //     this.tapio.position.xi * BLOCK_WIDTH,
+            //     this.tapio.position.yi * BLOCK_HEIGHT,
+            //     BLOCK_WIDTH,
+            //     BLOCK_HEIGHT,
+            // );
         }
 
         context.restore();
