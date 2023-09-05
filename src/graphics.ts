@@ -33,6 +33,8 @@ import playerWestStandSvg from './images/player_w_stand.svg';
 import playerWestWalk1Svg from './images/player_w_walk1.svg';
 import playerWestWalk2Svg from './images/player_w_walk2.svg';
 
+import treeSvg from './images/tree.svg';
+
 export const canvas = document.querySelector('canvas') as HTMLCanvasElement;
 export const context: CanvasRenderingContext2D = canvas.getContext('2d')!;
 
@@ -53,3 +55,7 @@ export const playerSouthWalk2Image = loadImage(playerSouthWalk2Svg);
 export const playerWestStandImage = loadImage(playerWestStandSvg);
 export const playerWestWalk1Image = loadImage(playerWestWalk1Svg);
 export const playerWestWalk2Image = loadImage(playerWestWalk2Svg);
+
+export const treeImage = loadImage(treeSvg);
+export const TREE_IMAGE_WIDTH = 100;
+export const TREE_IMAGE_HEIGHT = 135;

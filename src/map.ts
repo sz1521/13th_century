@@ -29,6 +29,7 @@ const BLOCK_Y_COUNT = 30;
 export enum BlockType {
     Floor,
     Grass,
+    Tree,
     Wall,
 }
 

@@ -24,7 +24,13 @@
 import { Area } from './area';
 import { Camera } from './camera';
 import { getControls } from './controls';
-import { canvas, context } from './graphics';
+import {
+    TREE_IMAGE_HEIGHT,
+    TREE_IMAGE_WIDTH,
+    canvas,
+    context,
+    treeImage,
+} from './graphics';
 import { Grid } from './grid';
 import { BlockType, createMap } from './map';
 import { Player } from './player';
@@ -166,8 +172,24 @@ export class Level implements Area {
                         break;
                     }
 
+                    case BlockType.Tree: {
+                        context.fillStyle = '#005000';
+                        context.fillRect(x, y, BLOCK_WIDTH, BLOCK_HEIGHT);
+
+                        const treeY = y - (TREE_IMAGE_HEIGHT - BLOCK_HEIGHT);
+
+                        context.drawImage(
+                            treeImage,
+                            x,
+                            treeY,
+                            TREE_IMAGE_WIDTH,
+                            TREE_IMAGE_HEIGHT,
+                        );
+                        break;
+                    }
+
                     case BlockType.Grass: {
-                        context.fillStyle = 'green';
+                        context.fillStyle = '#005000';
                         context.fillRect(x, y, BLOCK_WIDTH, BLOCK_HEIGHT);
                         break;
                     }

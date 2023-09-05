@@ -66,7 +66,9 @@ export class Tapio {
 
             if (map.get(newPosition.xi, newPosition.yi) === BlockType.Floor) {
                 this.position = newPosition;
-                map.set(newPosition.xi, newPosition.yi, BlockType.Grass);
+                const blockType: BlockType =
+                    Math.random() < 0.3 ? BlockType.Tree : BlockType.Grass;
+                map.set(newPosition.xi, newPosition.yi, blockType);
             } else {
                 this.direction = Math.floor(Math.random() * 4) as Direction;
             }
