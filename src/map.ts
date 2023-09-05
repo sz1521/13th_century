@@ -33,8 +33,17 @@ export enum BlockType {
     Wall,
 }
 
+export interface Block {
+    type: BlockType;
+    time?: number;
+}
+
+export const isBlocking = (block: Block | undefined): boolean => {
+    return !!block && block.type === BlockType.Wall;
+};
+
 const carveRectange = (
-    blocks: Grid<BlockType>,
+    blocks: Grid<Block>,
     xBegin: number,
     xEnd: number,
     yBegin: number,
@@ -42,17 +51,15 @@ const carveRectange = (
 ): void => {
     for (let gridY = yBegin; gridY < yEnd; gridY++) {
         for (let gridX = xBegin; gridX < xEnd; gridX++) {
-            blocks.set(gridX, gridY, BlockType.Floor);
+            blocks.set(gridX, gridY, { type: BlockType.Floor });
         }
     }
 };
 
-export const createMap = (): Grid<BlockType> => {
-    const blocks = new Grid<BlockType>(
-        BLOCK_X_COUNT,
-        BLOCK_Y_COUNT,
-        BlockType.Wall,
-    );
+export const createMap = (): Grid<Block> => {
+    const blocks = new Grid<Block>(BLOCK_X_COUNT, BLOCK_Y_COUNT, {
+        type: BlockType.Wall,
+    });
 
     carveRectange(blocks, 1, 6, 20, 29); // bottom-left room (start)
     carveRectange(blocks, 3, 4, 19, 20); // doorway

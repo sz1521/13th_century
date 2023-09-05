@@ -23,7 +23,7 @@
 
 import { Direction } from './area';
 import { Grid } from './grid';
-import { BlockType } from './map';
+import { Block, BlockType } from './map';
 
 interface GridPosition {
     xi: number;
@@ -57,18 +57,23 @@ export class Tapio {
         this.position = { xi, yi };
     }
 
-    update(map: Grid<BlockType>, now: number): void {
+    update(map: Grid<Block>, now: number): void {
         if (now - this.lastMoveTime > 1000) {
             const newPosition: GridPosition = getNewPosition(
                 this.position,
                 this.direction,
             );
 
-            if (map.get(newPosition.xi, newPosition.yi) === BlockType.Floor) {
+            const block = map.get(newPosition.xi, newPosition.yi);
+
+            if (block?.type === BlockType.Floor) {
                 this.position = newPosition;
-                const blockType: BlockType =
+                const type: BlockType =
                     Math.random() < 0.3 ? BlockType.Tree : BlockType.Grass;
-                map.set(newPosition.xi, newPosition.yi, blockType);
+                map.set(newPosition.xi, newPosition.yi, {
+                    type,
+                    time: performance.now(),
+                });
             } else {
                 this.direction = Math.floor(Math.random() * 4) as Direction;
             }

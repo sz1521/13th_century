@@ -24,6 +24,7 @@
 import { Area } from './area';
 import { Camera } from './camera';
 import { getControls } from './controls';
+import { easeInOutBack } from './easings';
 import {
     TREE_IMAGE_HEIGHT,
     TREE_IMAGE_WIDTH,
@@ -32,7 +33,7 @@ import {
     treeImage,
 } from './graphics';
 import { Grid } from './grid';
-import { BlockType, createMap } from './map';
+import { Block, BlockType, createMap, isBlocking } from './map';
 import { Player } from './player';
 import { Tapio } from './tapio';
 
@@ -42,7 +43,7 @@ const BLOCK_HEIGHT = 100;
 const SPEED = 0.3;
 
 export class Level implements Area {
-    private map: Grid<BlockType> = createMap();
+    private map: Grid<Block> = createMap();
     private camera: Camera = new Camera(this, canvas);
     private player: Player = new Player();
     private tapio: Tapio = new Tapio(0, 20);
@@ -107,14 +108,10 @@ export class Level implements Area {
             (newY + o.height - this.y) / BLOCK_HEIGHT,
         );
 
-        const blockUpLeft =
-            this.map.get(minXIndex, minYIndex) === BlockType.Wall;
-        const blockDownLeft =
-            this.map.get(minXIndex, maxYIndex) === BlockType.Wall;
-        const blockUpRight =
-            this.map.get(maxXIndex, minYIndex) === BlockType.Wall;
-        const blockDownRight =
-            this.map.get(maxXIndex, maxYIndex) === BlockType.Wall;
+        const blockUpLeft = isBlocking(this.map.get(minXIndex, minYIndex));
+        const blockDownLeft = isBlocking(this.map.get(minXIndex, maxYIndex));
+        const blockUpRight = isBlocking(this.map.get(maxXIndex, minYIndex));
+        const blockDownRight = isBlocking(this.map.get(maxXIndex, maxYIndex));
 
         // Adjust movement if hitting a block
 
@@ -134,6 +131,7 @@ export class Level implements Area {
     }
 
     draw(): void {
+        const now = performance.now();
         context.save();
 
         // Apply camera
@@ -149,10 +147,14 @@ export class Level implements Area {
         for (let gridY = 0; gridY < this.map.yCount; gridY++) {
             for (let gridX = 0; gridX < this.map.xCount; gridX++) {
                 const block = this.map.get(gridX, gridY);
+                if (!block) {
+                    continue;
+                }
+
                 const x = gridX * BLOCK_WIDTH;
                 const y = gridY * BLOCK_HEIGHT;
 
-                switch (block) {
+                switch (block.type) {
                     case BlockType.Wall: {
                         context.fillStyle = 'rgb(30, 60, 60)';
                         context.fillRect(
@@ -173,18 +175,33 @@ export class Level implements Area {
                     }
 
                     case BlockType.Tree: {
+                        // Grass:
                         context.fillStyle = '#005000';
                         context.fillRect(x, y, BLOCK_WIDTH, BLOCK_HEIGHT);
 
-                        const treeY = y - (TREE_IMAGE_HEIGHT - BLOCK_HEIGHT);
+                        const growthProgress =
+                            Math.min(1000, now - block.time!) / 1000.0;
+                        const sizeRatio = Math.max(
+                            0,
+                            easeInOutBack(growthProgress),
+                        );
+                        const treeX =
+                            x +
+                            (BLOCK_WIDTH - TREE_IMAGE_WIDTH * sizeRatio) / 2;
+                        const treeY =
+                            y - (TREE_IMAGE_HEIGHT * sizeRatio - BLOCK_HEIGHT);
 
+                        context.save();
+                        context.translate(treeX, treeY);
+                        context.scale(sizeRatio, sizeRatio);
                         context.drawImage(
                             treeImage,
-                            x,
-                            treeY,
+                            0,
+                            0,
                             TREE_IMAGE_WIDTH,
                             TREE_IMAGE_HEIGHT,
                         );
+                        context.restore();
                         break;
                     }
 
