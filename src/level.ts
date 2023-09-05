@@ -24,67 +24,49 @@
 import { Area } from './area';
 import { Camera } from './camera';
 import { getControls } from './controls';
-import { canvas, context } from './graphics';
+import { easeInOutBack } from './easings';
+import {
+    TREE_IMAGE_HEIGHT,
+    TREE_IMAGE_WIDTH,
+    canvas,
+    context,
+    treeImage,
+} from './graphics';
 import { Grid } from './grid';
+import { Block, BlockType, createMap, isBlocking } from './map';
 import { Player } from './player';
+import { Tapio } from './tapio';
 
 const BLOCK_WIDTH = 100;
 const BLOCK_HEIGHT = 100;
 
-const BLOCK_X_COUNT = 30;
-const BLOCK_Y_COUNT = 30;
-
 const SPEED = 0.3;
 
-const carveRectange = (
-    blocks: Grid<boolean>,
-    xBegin: number,
-    xEnd: number,
-    yBegin: number,
-    yEnd: number,
-): void => {
-    for (let gridY = yBegin; gridY < yEnd; gridY++) {
-        for (let gridX = xBegin; gridX < xEnd; gridX++) {
-            blocks.set(gridX, gridY, false);
-        }
-    }
-};
-
 export class Level implements Area {
-    x = 0;
-    y = 0;
-    width = BLOCK_X_COUNT * BLOCK_WIDTH;
-    height = BLOCK_Y_COUNT * BLOCK_HEIGHT;
-
-    private blocks: Grid<boolean> = new Grid<boolean>(
-        BLOCK_X_COUNT,
-        BLOCK_Y_COUNT,
-        true,
-    );
+    private map: Grid<Block> = createMap();
     private camera: Camera = new Camera(this, canvas);
     private player: Player = new Player();
+    private tapio: Tapio = new Tapio(0, 20);
+
+    x = 0;
+    y = 0;
+    width = this.map.xCount * BLOCK_WIDTH;
+    height = this.map.yCount * BLOCK_HEIGHT;
 
     constructor() {
         this.player.x = 2 * BLOCK_WIDTH;
         this.player.y = 28 * BLOCK_HEIGHT;
-
-        carveRectange(this.blocks, 1, 6, 20, 29); // bottom-left room (start)
-        carveRectange(this.blocks, 3, 4, 19, 20); // doorway
-        carveRectange(this.blocks, 1, 9, 12, 19);
-        carveRectange(this.blocks, 2, 3, 11, 12); // doorway
-        carveRectange(this.blocks, 1, 9, 1, 11); // top-left room
-        carveRectange(this.blocks, 9, 10, 4, 8); // doorway
-        carveRectange(this.blocks, 10, 29, 1, 11); // top-right room
-        carveRectange(this.blocks, 19, 21, 11, 14); // hallway
-        carveRectange(this.blocks, 15, 28, 14, 28); // bottom-right room
 
         this.camera.follow(this.player);
         this.camera.zoom = 0.5;
     }
 
     update(dt: number): void {
+        const now = performance.now();
+
         this.camera.update();
 
+        this.tapio.update(this.map, now);
         this.move(dt, this.player);
     }
 
@@ -126,10 +108,10 @@ export class Level implements Area {
             (newY + o.height - this.y) / BLOCK_HEIGHT,
         );
 
-        const blockUpLeft = this.blocks.get(minXIndex, minYIndex);
-        const blockDownLeft = this.blocks.get(minXIndex, maxYIndex);
-        const blockUpRight = this.blocks.get(maxXIndex, minYIndex);
-        const blockDownRight = this.blocks.get(maxXIndex, maxYIndex);
+        const blockUpLeft = isBlocking(this.map.get(minXIndex, minYIndex));
+        const blockDownLeft = isBlocking(this.map.get(minXIndex, maxYIndex));
+        const blockUpRight = isBlocking(this.map.get(maxXIndex, minYIndex));
+        const blockDownRight = isBlocking(this.map.get(maxXIndex, maxYIndex));
 
         // Adjust movement if hitting a block
 
@@ -149,6 +131,7 @@ export class Level implements Area {
     }
 
     draw(): void {
+        const now = performance.now();
         context.save();
 
         // Apply camera
@@ -161,41 +144,98 @@ export class Level implements Area {
         context.fillRect(this.x, this.y, this.width, this.height);
 
         // Draw blocks
-        for (let gridY = 0; gridY < this.blocks.yCount; gridY++) {
-            for (let gridX = 0; gridX < this.blocks.xCount; gridX++) {
-                const block = this.blocks.get(gridX, gridY);
-                if (block) {
-                    const x = gridX * BLOCK_WIDTH;
-                    const y = gridY * BLOCK_HEIGHT;
+        for (let gridY = 0; gridY < this.map.yCount; gridY++) {
+            for (let gridX = 0; gridX < this.map.xCount; gridX++) {
+                const block = this.map.get(gridX, gridY);
+                if (!block) {
+                    continue;
+                }
 
-                    context.fillStyle = 'rgb(30, 60, 60)';
-                    context.fillRect(
-                        x,
-                        y - BLOCK_HEIGHT / 2,
-                        BLOCK_WIDTH,
-                        BLOCK_HEIGHT,
-                    );
+                const x = gridX * BLOCK_WIDTH;
+                const y = gridY * BLOCK_HEIGHT;
 
-                    context.fillStyle = 'rgb(50, 100, 100)';
-                    context.fillRect(
-                        x,
-                        y + BLOCK_HEIGHT / 2,
-                        BLOCK_WIDTH,
-                        BLOCK_HEIGHT / 2,
-                    );
+                switch (block.type) {
+                    case BlockType.Wall: {
+                        context.fillStyle = 'rgb(30, 60, 60)';
+                        context.fillRect(
+                            x,
+                            y - BLOCK_HEIGHT / 2,
+                            BLOCK_WIDTH,
+                            BLOCK_HEIGHT,
+                        );
+
+                        context.fillStyle = 'rgb(50, 100, 100)';
+                        context.fillRect(
+                            x,
+                            y + BLOCK_HEIGHT / 2,
+                            BLOCK_WIDTH,
+                            BLOCK_HEIGHT / 2,
+                        );
+                        break;
+                    }
+
+                    case BlockType.Tree: {
+                        // Grass:
+                        context.fillStyle = '#005000';
+                        context.fillRect(x, y, BLOCK_WIDTH, BLOCK_HEIGHT);
+
+                        const growthProgress =
+                            Math.min(1000, now - block.time!) / 1000.0;
+                        const sizeRatio = Math.max(
+                            0,
+                            easeInOutBack(growthProgress),
+                        );
+                        const treeX =
+                            x +
+                            (BLOCK_WIDTH - TREE_IMAGE_WIDTH * sizeRatio) / 2;
+                        const treeY =
+                            y - (TREE_IMAGE_HEIGHT * sizeRatio - BLOCK_HEIGHT);
+
+                        context.save();
+                        context.translate(treeX, treeY);
+                        context.scale(sizeRatio, sizeRatio);
+                        context.drawImage(
+                            treeImage,
+                            0,
+                            0,
+                            TREE_IMAGE_WIDTH,
+                            TREE_IMAGE_HEIGHT,
+                        );
+                        context.restore();
+                        break;
+                    }
+
+                    case BlockType.Grass: {
+                        context.fillStyle = '#005000';
+                        context.fillRect(x, y, BLOCK_WIDTH, BLOCK_HEIGHT);
+                        break;
+                    }
+
+                    case BlockType.Floor:
+                    default:
+                        break;
                 }
             }
 
             // Draw characters in the right row, such that they appear
             // correctly behind or in front of the walls.
             const playerBottomY = this.player.y + this.player.height;
-            const rowTopY = gridY * BLOCK_HEIGHT + BLOCK_HEIGHT / 2;
-            const rowBottomY =
-                gridY * BLOCK_HEIGHT + BLOCK_HEIGHT + BLOCK_HEIGHT / 2;
+            const rowTopY = gridY * BLOCK_HEIGHT;
+            const rowBottomY = gridY * BLOCK_HEIGHT + BLOCK_HEIGHT;
 
             if (rowTopY <= playerBottomY && playerBottomY < rowBottomY) {
                 this.player.draw();
             }
+
+            // For debug drawing:
+            //
+            // context.strokeStyle = 'orange';
+            // context.strokeRect(
+            //     this.tapio.position.xi * BLOCK_WIDTH,
+            //     this.tapio.position.yi * BLOCK_HEIGHT,
+            //     BLOCK_WIDTH,
+            //     BLOCK_HEIGHT,
+            // );
         }
 
         context.restore();
