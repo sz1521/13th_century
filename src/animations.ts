@@ -55,22 +55,22 @@ export const getFrame = (
 };
 
 export const playerWestStandAnimation: AnimationDefinition = {
-    fps: 5,
+    fps: 8,
     frames: [playerWestStandImage],
 };
 
 export const playerWestWalkAnimation: AnimationDefinition = {
-    fps: 5,
+    fps: 8,
     frames: [playerWestWalk1Image, playerWestWalk2Image, playerWestStandImage],
 };
 
 export const playerNorthStandAnimation: AnimationDefinition = {
-    fps: 5,
+    fps: 8,
     frames: [playerNorthStandImage],
 };
 
 export const playerNorthWalkAnimation: AnimationDefinition = {
-    fps: 5,
+    fps: 8,
     frames: [
         playerNorthWalk1Image,
         playerNorthWalk2Image,
@@ -79,12 +79,12 @@ export const playerNorthWalkAnimation: AnimationDefinition = {
 };
 
 export const playerSouthStandAnimation: AnimationDefinition = {
-    fps: 5,
+    fps: 8,
     frames: [playerSouthStandImage],
 };
 
 export const playerSouthWalkAnimation: AnimationDefinition = {
-    fps: 5,
+    fps: 8,
     frames: [
         playerSouthWalk1Image,
         playerSouthWalk2Image,
