@@ -47,6 +47,7 @@ export class Level implements Area {
     private camera: Camera = new Camera(this, canvas);
     private player: Character = new Character();
     private tapio: Tapio = new Tapio(0, 20);
+    private characters: Character[] = [];
 
     x = 0;
     y = 0;
@@ -56,6 +57,12 @@ export class Level implements Area {
     constructor() {
         this.player.x = 2 * BLOCK_WIDTH;
         this.player.y = 28 * BLOCK_HEIGHT;
+        this.characters.push(this.player);
+
+        const goblin = new Character();
+        goblin.x = 4 * BLOCK_WIDTH;
+        goblin.y = 25 * BLOCK_HEIGHT;
+        this.characters.push(goblin);
 
         this.camera.follow(this.player);
         this.camera.zoom = 0.5;
@@ -217,26 +224,38 @@ export class Level implements Area {
                 }
             }
 
-            // Draw characters in the right row, such that they appear
-            // correctly behind or in front of the walls.
-            const playerBottomY = this.player.y + this.player.height;
-            const rowTopY = gridY * BLOCK_HEIGHT;
-            const rowBottomY = gridY * BLOCK_HEIGHT + BLOCK_HEIGHT;
+            // Draw characters that are on the current row, such that
+            // they appear correctly behind or in front of the walls.
+            const charactersOnRow: Character[] = [];
 
-            if (rowTopY <= playerBottomY && playerBottomY < rowBottomY) {
-                this.player.draw();
+            // Find out characters that are on the same row.
+            for (const c of this.characters) {
+                const bottomY = c.y + c.height;
+                const rowTopY = gridY * BLOCK_HEIGHT;
+                const rowBottomY = gridY * BLOCK_HEIGHT + BLOCK_HEIGHT;
+
+                if (rowTopY <= bottomY && bottomY < rowBottomY) {
+                    charactersOnRow.push(c);
+                }
             }
 
-            // For debug drawing:
-            //
-            // context.strokeStyle = 'orange';
-            // context.strokeRect(
-            //     this.tapio.position.xi * BLOCK_WIDTH,
-            //     this.tapio.position.yi * BLOCK_HEIGHT,
-            //     BLOCK_WIDTH,
-            //     BLOCK_HEIGHT,
-            // );
+            // Sort the characters so they are drawn in the right order.
+            charactersOnRow.sort((a, b) => a.y + a.height - (b.y + b.height));
+
+            for (const c of charactersOnRow) {
+                c.draw();
+            }
         }
+
+        // For debug drawing:
+        //
+        // context.strokeStyle = 'orange';
+        // context.strokeRect(
+        //     this.tapio.position.xi * BLOCK_WIDTH,
+        //     this.tapio.position.yi * BLOCK_HEIGHT,
+        //     BLOCK_WIDTH,
+        //     BLOCK_HEIGHT,
+        // );
 
         context.restore();
     }
