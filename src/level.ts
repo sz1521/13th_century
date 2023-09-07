@@ -44,6 +44,11 @@ const BLOCK_HEIGHT = 100;
 const PLAYER_SPEED = 0.3;
 const ENEMY_SPEED = 0.1;
 
+export enum State {
+    RUNNING,
+    GAME_OVER,
+}
+
 export class Level implements Area {
     private map: Grid<Block> = createMap();
     private camera: Camera = new Camera(this, canvas);
@@ -55,6 +60,8 @@ export class Level implements Area {
     y = 0;
     width = this.map.xCount * BLOCK_WIDTH;
     height = this.map.yCount * BLOCK_HEIGHT;
+
+    state: State = State.RUNNING;
 
     constructor() {
         this.player.x = 2 * BLOCK_WIDTH;
@@ -75,22 +82,32 @@ export class Level implements Area {
         const now = performance.now();
         const controls = getControls();
 
+        this.camera.update();
+
+        this.tapio.update(this.map, now);
+
         for (const c of this.characters) {
             const movement =
                 c === this.player
                     ? this.getPlayerMovement(dt, controls)
                     : this.followPlayer(dt, c);
             this.move(c, movement);
+
+            if (c !== this.player) {
+                if (getDistance(getDifference(c, this.player)) < 60) {
+                    this.state = State.GAME_OVER;
+                }
+            }
         }
-
-        this.camera.update();
-
-        this.tapio.update(this.map, now);
     }
 
     private getPlayerMovement(dt: number, controls: Controls): Movement {
         let dx = 0;
         let dy = 0;
+
+        if (this.state === State.GAME_OVER) {
+            return { dx: 0, dy: 0 };
+        }
 
         // Calculate movement according to controls
         if (controls.ArrowLeft && this.x <= this.player.x) {

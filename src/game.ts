@@ -23,7 +23,7 @@
 
 import { initializeControls } from './controls';
 import { canvas, context } from './graphics';
-import { Level } from './level';
+import { Level, State } from './level';
 
 const TIME_STEP = 1000 / 60;
 const MAX_FRAME = TIME_STEP * 5;
@@ -51,6 +51,12 @@ const draw = (): void => {
     context.fillRect(0, 0, canvas.width, canvas.height);
 
     level.draw();
+
+    if (level.state === State.GAME_OVER) {
+        context.font = '22px Sans-serif';
+        context.fillStyle = 'white';
+        context.fillText('GAME OVER', canvas.width * 0.45, canvas.height / 2);
+    }
 };
 
 export const start = (): void => {
