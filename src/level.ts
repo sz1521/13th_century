@@ -34,7 +34,7 @@ import {
 } from './graphics';
 import { Grid } from './grid';
 import { Block, BlockType, createMap, isBlocking } from './map';
-import { Player } from './player';
+import { Character } from './character';
 import { Tapio } from './tapio';
 
 const BLOCK_WIDTH = 100;
@@ -45,7 +45,7 @@ const SPEED = 0.3;
 export class Level implements Area {
     private map: Grid<Block> = createMap();
     private camera: Camera = new Camera(this, canvas);
-    private player: Player = new Player();
+    private player: Character = new Character();
     private tapio: Tapio = new Tapio(0, 20);
 
     x = 0;
@@ -70,7 +70,7 @@ export class Level implements Area {
         this.move(dt, this.player);
     }
 
-    private move(dt: number, o: Player): void {
+    private move(dt: number, o: Character): void {
         const controls = getControls();
         let dx = 0;
         let dy = 0;

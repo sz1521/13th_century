@@ -60,7 +60,7 @@ const selectAnimation = (
     }
 };
 
-export class Player implements GameObject {
+export class Character implements GameObject {
     x: number = 0;
     y: number = 0;
 
