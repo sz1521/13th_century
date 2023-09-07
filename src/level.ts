@@ -23,7 +23,7 @@
 
 import { Area } from './area';
 import { Camera } from './camera';
-import { getControls } from './controls';
+import { Controls, getControls } from './controls';
 import { easeInOutBack } from './easings';
 import {
     TREE_IMAGE_HEIGHT,
@@ -36,11 +36,13 @@ import { Grid } from './grid';
 import { Block, BlockType, createMap, isBlocking } from './map';
 import { Character } from './character';
 import { Tapio } from './tapio';
+import { Movement, getDifference, getDistance } from './gameobject';
 
 const BLOCK_WIDTH = 100;
 const BLOCK_HEIGHT = 100;
 
-const SPEED = 0.3;
+const PLAYER_SPEED = 0.3;
+const ENEMY_SPEED = 0.1;
 
 export class Level implements Area {
     private map: Grid<Block> = createMap();
@@ -60,6 +62,7 @@ export class Level implements Area {
         this.characters.push(this.player);
 
         const goblin = new Character();
+        goblin.isEnemy = true;
         goblin.x = 4 * BLOCK_WIDTH;
         goblin.y = 25 * BLOCK_HEIGHT;
         this.characters.push(goblin);
@@ -70,36 +73,60 @@ export class Level implements Area {
 
     update(dt: number): void {
         const now = performance.now();
+        const controls = getControls();
+
+        for (const c of this.characters) {
+            const movement =
+                c === this.player
+                    ? this.getPlayerMovement(dt, controls)
+                    : this.followPlayer(dt, c);
+            this.move(c, movement);
+        }
 
         this.camera.update();
 
         this.tapio.update(this.map, now);
-        this.move(dt, this.player);
     }
 
-    private move(dt: number, o: Character): void {
-        const controls = getControls();
+    private getPlayerMovement(dt: number, controls: Controls): Movement {
         let dx = 0;
         let dy = 0;
 
         // Calculate movement according to controls
-
-        if (controls.ArrowLeft && this.x <= o.x) {
-            dx = -SPEED * dt;
+        if (controls.ArrowLeft && this.x <= this.player.x) {
+            dx = -PLAYER_SPEED * dt;
         } else if (
             controls.ArrowRight &&
-            o.x + o.width <= this.x + this.width
+            this.player.x + this.player.width <= this.x + this.width
         ) {
-            dx = SPEED * dt;
-        } else if (controls.ArrowUp && this.y <= o.y) {
-            dy = -SPEED * dt;
+            dx = PLAYER_SPEED * dt;
+        } else if (controls.ArrowUp && this.y <= this.player.y) {
+            dy = -PLAYER_SPEED * dt;
         } else if (
             controls.ArrowDown &&
-            o.y + o.height <= this.y + this.height
+            this.player.y + this.player.height <= this.y + this.height
         ) {
-            dy = SPEED * dt;
+            dy = PLAYER_SPEED * dt;
         }
 
+        return { dx, dy };
+    }
+
+    private followPlayer(dt: number, c: Character): Movement {
+        const diff = getDifference(c, this.player);
+        const distance = getDistance(diff);
+        let dx = 0;
+        let dy = 0;
+
+        if (50 < distance && distance < 400) {
+            dx = Math.sign(diff.dx) * ENEMY_SPEED * dt;
+            dy = Math.sign(diff.dy) * ENEMY_SPEED * dt;
+        }
+
+        return { dx, dy };
+    }
+
+    private move(o: Character, { dx, dy }: Movement): void {
         const newX = o.x + dx;
         const newY = o.y + dy;
 
