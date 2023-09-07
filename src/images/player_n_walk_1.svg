@@ -1,6 +1,10 @@
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 50 135" version="1.1">
   <defs>
     <style>
+      svg {
+        filter: drop-shadow(1px 2px 2px black);
+      }
+      
       .cls-yellow {
         fill: #b7a54e;
       }

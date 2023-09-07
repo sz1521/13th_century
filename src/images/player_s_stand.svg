@@ -1,8 +1,14 @@
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 50 135" version="1.1">
   <defs>
     <style>
+      
+      svg {
+        filter: drop-shadow(1px 2px 2px black);
+      }
+
       .cls-yellow {
         fill: #b7a54e;
+        filter: drop-shadow(0 1px 1px #a7953e);
       }
 
       .cls-pink {
@@ -43,7 +49,7 @@
     </style>
   </defs>
   <g>
-    <ellipse class="cls-blue" cx="17.64" cy="102.49" rx="5.63" ry="13.43"/>
+    <ellipse class="cls-blue" cx="17.64" cy="102.49" rx="5.63" ry="13.43" />
     <ellipse class="cls-blue" cx="34.3" cy="103.85" rx="5.63" ry="13.43"/>
     <ellipse class="cls-light-pink" cx="45.55" cy="67.11" rx="2.49" ry="16.4" transform="translate(-8.35 6.5) rotate(-7.48)"/>
     <ellipse class="cls-light-pink" cx="4.73" cy="67.84" rx="16.4" ry="2.5" transform="translate(-63.12 63.22) rotate(-82.11)"/>
