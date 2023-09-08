@@ -231,7 +231,7 @@ export class Level implements Area {
                         context.fillRect(x, y, BLOCK_WIDTH, BLOCK_HEIGHT);
 
                         const growthProgress =
-                            Math.min(1000, now - block.time!) / 1000.0;
+                            Math.min(1000, now - block.time) / 1000.0;
                         const sizeRatio = Math.max(
                             0,
                             easeInOutBack(growthProgress),

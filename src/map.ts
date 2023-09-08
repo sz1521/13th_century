@@ -33,10 +33,14 @@ export enum BlockType {
     Wall,
 }
 
-export interface Block {
-    type: BlockType;
-    time?: number;
-}
+export type Block =
+    | {
+          type: BlockType.Floor | BlockType.Grass | BlockType.Wall;
+      }
+    | {
+          type: BlockType.Tree;
+          time: number;
+      };
 
 export const isBlocking = (block: Block | undefined): boolean => {
     return !!block && block.type === BlockType.Wall;
