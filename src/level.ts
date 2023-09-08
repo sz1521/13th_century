@@ -36,7 +36,7 @@ import { Grid } from './grid';
 import { Block, BlockType, createMap, isBlocking } from './map';
 import { Character } from './character';
 import { Tapio } from './tapio';
-import { Movement, getDifference, getDistance } from './gameobject';
+import { GameObject, Movement, getDifference, getDistance } from './gameobject';
 
 const BLOCK_WIDTH = 100;
 const BLOCK_HEIGHT = 100;
@@ -54,7 +54,7 @@ export class Level implements Area {
     private camera: Camera = new Camera(this, canvas);
     private player: Character = new Character();
     private tapio: Tapio = new Tapio(0, 20);
-    private characters: Character[] = [];
+    private gameObjects: GameObject[] = [];
 
     x = 0;
     y = 0;
@@ -66,13 +66,13 @@ export class Level implements Area {
     constructor() {
         this.player.x = 2 * BLOCK_WIDTH;
         this.player.y = 28 * BLOCK_HEIGHT;
-        this.characters.push(this.player);
+        this.gameObjects.push(this.player);
 
         const goblin = new Character();
         goblin.isEnemy = true;
         goblin.x = 4 * BLOCK_WIDTH;
         goblin.y = 25 * BLOCK_HEIGHT;
-        this.characters.push(goblin);
+        this.gameObjects.push(goblin);
 
         this.camera.follow(this.player);
         this.camera.zoom = 0.5;
@@ -86,15 +86,15 @@ export class Level implements Area {
 
         this.tapio.update(this.map, now);
 
-        for (const c of this.characters) {
+        for (const o of this.gameObjects) {
             const movement =
-                c === this.player
+                o === this.player
                     ? this.getPlayerMovement(dt, controls)
-                    : this.followPlayer(dt, c);
-            this.move(c, movement);
+                    : this.followPlayer(dt, o);
+            this.move(o, movement);
 
-            if (c !== this.player) {
-                if (getDistance(getDifference(c, this.player)) < 60) {
+            if (o !== this.player) {
+                if (getDistance(getDifference(o, this.player)) < 60) {
                     this.state = State.GAME_OVER;
                 }
             }
@@ -129,8 +129,8 @@ export class Level implements Area {
         return { dx, dy };
     }
 
-    private followPlayer(dt: number, c: Character): Movement {
-        const diff = getDifference(c, this.player);
+    private followPlayer(dt: number, o: GameObject): Movement {
+        const diff = getDifference(o, this.player);
         const distance = getDistance(diff);
         let dx = 0;
         let dy = 0;
@@ -143,7 +143,7 @@ export class Level implements Area {
         return { dx, dy };
     }
 
-    private move(o: Character, { dx, dy }: Movement): void {
+    private move(o: GameObject, { dx, dy }: Movement): void {
         const newX = o.x + dx;
         const newY = o.y + dy;
 
@@ -178,7 +178,7 @@ export class Level implements Area {
             dy = 0;
         }
 
-        o.move(dx, dy);
+        o.move({ dx, dy });
     }
 
     draw(): void {
@@ -268,26 +268,26 @@ export class Level implements Area {
                 }
             }
 
-            // Draw characters that are on the current row, such that
+            // Draw game objects that are on the current row, such that
             // they appear correctly behind or in front of the walls.
-            const charactersOnRow: Character[] = [];
+            const gameObjectsOnRow: GameObject[] = [];
 
-            // Find out characters that are on the same row.
-            for (const c of this.characters) {
-                const bottomY = c.y + c.height;
+            // Find out game objects that are on the same row.
+            for (const o of this.gameObjects) {
+                const bottomY = o.y + o.height;
                 const rowTopY = gridY * BLOCK_HEIGHT;
                 const rowBottomY = gridY * BLOCK_HEIGHT + BLOCK_HEIGHT;
 
                 if (rowTopY <= bottomY && bottomY < rowBottomY) {
-                    charactersOnRow.push(c);
+                    gameObjectsOnRow.push(o);
                 }
             }
 
-            // Sort the characters so they are drawn in the right order.
-            charactersOnRow.sort((a, b) => a.y + a.height - (b.y + b.height));
+            // Sort the game objects so they are drawn in the right order.
+            gameObjectsOnRow.sort((a, b) => a.y + a.height - (b.y + b.height));
 
-            for (const c of charactersOnRow) {
-                c.draw();
+            for (const o of gameObjectsOnRow) {
+                o.draw();
             }
         }
 

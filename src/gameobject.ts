@@ -31,6 +31,9 @@ export interface GameObject {
     y: number;
     width: number;
     height: number;
+
+    draw(): void;
+    move(movement: Movement): void;
 }
 
 export const getDifference = (c: GameObject, other: GameObject): Movement => {
