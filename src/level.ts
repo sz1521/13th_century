@@ -23,7 +23,7 @@
 
 import { Area } from './area';
 import { Camera } from './camera';
-import { getControls } from './controls';
+import { Controls, getControls } from './controls';
 import { easeInOutBack } from './easings';
 import {
     TREE_IMAGE_HEIGHT,
@@ -34,28 +34,45 @@ import {
 } from './graphics';
 import { Grid } from './grid';
 import { Block, BlockType, createMap, isBlocking } from './map';
-import { Player } from './player';
+import { Character } from './character';
 import { Tapio } from './tapio';
+import { Movement, getDifference, getDistance } from './gameobject';
 
 const BLOCK_WIDTH = 100;
 const BLOCK_HEIGHT = 100;
 
-const SPEED = 0.3;
+const PLAYER_SPEED = 0.3;
+const ENEMY_SPEED = 0.1;
+
+export enum State {
+    RUNNING,
+    GAME_OVER,
+}
 
 export class Level implements Area {
     private map: Grid<Block> = createMap();
     private camera: Camera = new Camera(this, canvas);
-    private player: Player = new Player();
+    private player: Character = new Character();
     private tapio: Tapio = new Tapio(0, 20);
+    private characters: Character[] = [];
 
     x = 0;
     y = 0;
     width = this.map.xCount * BLOCK_WIDTH;
     height = this.map.yCount * BLOCK_HEIGHT;
 
+    state: State = State.RUNNING;
+
     constructor() {
         this.player.x = 2 * BLOCK_WIDTH;
         this.player.y = 28 * BLOCK_HEIGHT;
+        this.characters.push(this.player);
+
+        const goblin = new Character();
+        goblin.isEnemy = true;
+        goblin.x = 4 * BLOCK_WIDTH;
+        goblin.y = 25 * BLOCK_HEIGHT;
+        this.characters.push(goblin);
 
         this.camera.follow(this.player);
         this.camera.zoom = 0.5;
@@ -63,36 +80,70 @@ export class Level implements Area {
 
     update(dt: number): void {
         const now = performance.now();
+        const controls = getControls();
 
         this.camera.update();
 
         this.tapio.update(this.map, now);
-        this.move(dt, this.player);
+
+        for (const c of this.characters) {
+            const movement =
+                c === this.player
+                    ? this.getPlayerMovement(dt, controls)
+                    : this.followPlayer(dt, c);
+            this.move(c, movement);
+
+            if (c !== this.player) {
+                if (getDistance(getDifference(c, this.player)) < 60) {
+                    this.state = State.GAME_OVER;
+                }
+            }
+        }
     }
 
-    private move(dt: number, o: Player): void {
-        const controls = getControls();
+    private getPlayerMovement(dt: number, controls: Controls): Movement {
         let dx = 0;
         let dy = 0;
 
-        // Calculate movement according to controls
-
-        if (controls.ArrowLeft && this.x <= o.x) {
-            dx = -SPEED * dt;
-        } else if (
-            controls.ArrowRight &&
-            o.x + o.width <= this.x + this.width
-        ) {
-            dx = SPEED * dt;
-        } else if (controls.ArrowUp && this.y <= o.y) {
-            dy = -SPEED * dt;
-        } else if (
-            controls.ArrowDown &&
-            o.y + o.height <= this.y + this.height
-        ) {
-            dy = SPEED * dt;
+        if (this.state === State.GAME_OVER) {
+            return { dx: 0, dy: 0 };
         }
 
+        // Calculate movement according to controls
+        if (controls.ArrowLeft && this.x <= this.player.x) {
+            dx = -PLAYER_SPEED * dt;
+        } else if (
+            controls.ArrowRight &&
+            this.player.x + this.player.width <= this.x + this.width
+        ) {
+            dx = PLAYER_SPEED * dt;
+        } else if (controls.ArrowUp && this.y <= this.player.y) {
+            dy = -PLAYER_SPEED * dt;
+        } else if (
+            controls.ArrowDown &&
+            this.player.y + this.player.height <= this.y + this.height
+        ) {
+            dy = PLAYER_SPEED * dt;
+        }
+
+        return { dx, dy };
+    }
+
+    private followPlayer(dt: number, c: Character): Movement {
+        const diff = getDifference(c, this.player);
+        const distance = getDistance(diff);
+        let dx = 0;
+        let dy = 0;
+
+        if (50 < distance && distance < 400) {
+            dx = Math.sign(diff.dx) * ENEMY_SPEED * dt;
+            dy = Math.sign(diff.dy) * ENEMY_SPEED * dt;
+        }
+
+        return { dx, dy };
+    }
+
+    private move(o: Character, { dx, dy }: Movement): void {
         const newX = o.x + dx;
         const newY = o.y + dy;
 
@@ -217,26 +268,38 @@ export class Level implements Area {
                 }
             }
 
-            // Draw characters in the right row, such that they appear
-            // correctly behind or in front of the walls.
-            const playerBottomY = this.player.y + this.player.height;
-            const rowTopY = gridY * BLOCK_HEIGHT;
-            const rowBottomY = gridY * BLOCK_HEIGHT + BLOCK_HEIGHT;
+            // Draw characters that are on the current row, such that
+            // they appear correctly behind or in front of the walls.
+            const charactersOnRow: Character[] = [];
 
-            if (rowTopY <= playerBottomY && playerBottomY < rowBottomY) {
-                this.player.draw();
+            // Find out characters that are on the same row.
+            for (const c of this.characters) {
+                const bottomY = c.y + c.height;
+                const rowTopY = gridY * BLOCK_HEIGHT;
+                const rowBottomY = gridY * BLOCK_HEIGHT + BLOCK_HEIGHT;
+
+                if (rowTopY <= bottomY && bottomY < rowBottomY) {
+                    charactersOnRow.push(c);
+                }
             }
 
-            // For debug drawing:
-            //
-            // context.strokeStyle = 'orange';
-            // context.strokeRect(
-            //     this.tapio.position.xi * BLOCK_WIDTH,
-            //     this.tapio.position.yi * BLOCK_HEIGHT,
-            //     BLOCK_WIDTH,
-            //     BLOCK_HEIGHT,
-            // );
+            // Sort the characters so they are drawn in the right order.
+            charactersOnRow.sort((a, b) => a.y + a.height - (b.y + b.height));
+
+            for (const c of charactersOnRow) {
+                c.draw();
+            }
         }
+
+        // For debug drawing:
+        //
+        // context.strokeStyle = 'orange';
+        // context.strokeRect(
+        //     this.tapio.position.xi * BLOCK_WIDTH,
+        //     this.tapio.position.yi * BLOCK_HEIGHT,
+        //     BLOCK_WIDTH,
+        //     BLOCK_HEIGHT,
+        // );
 
         context.restore();
     }
