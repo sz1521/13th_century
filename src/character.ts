@@ -60,12 +60,15 @@ const selectAnimation = (
     }
 };
 
-export class Player implements GameObject {
+export class Character implements GameObject {
     x: number = 0;
     y: number = 0;
 
     width = collisionWidth;
     height = collisionHeight;
+
+    // Temporary trick to draw enemies differently.
+    isEnemy: boolean = false;
 
     private direction: Direction = Direction.Down;
     private isMoving: boolean = false;
@@ -122,6 +125,11 @@ export class Player implements GameObject {
         }
 
         context.drawImage(image, 0, 0, imageWidth, imageHeight);
+
+        if (this.isEnemy) {
+            context.fillStyle = '#55555599';
+            context.fillRect(0, 0, imageWidth, imageHeight);
+        }
 
         context.restore();
 
