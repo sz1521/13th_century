@@ -108,6 +108,10 @@ export class Character implements GameObject {
 
     draw(): void {
         context.save();
+        if (this.isEnemy) {
+            context.filter = 'grayscale()';
+            context.globalAlpha = 0.5;
+         }
 
         const x = this.x - xMargin;
         const y = this.y - (imageHeight - this.height);
@@ -125,11 +129,6 @@ export class Character implements GameObject {
         }
 
         context.drawImage(image, 0, 0, imageWidth, imageHeight);
-
-        if (this.isEnemy) {
-            context.fillStyle = '#55555599';
-            context.fillRect(0, 0, imageWidth, imageHeight);
-        }
 
         context.restore();
 
