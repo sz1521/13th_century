@@ -24,7 +24,8 @@
 import { initializeControls } from './controls';
 import { canvas, context } from './graphics';
 import { Level, State } from './level';
-//@ts-ignore
+// eslint-disable-next-line @typescript-eslint/ban-ts-comment
+// @ts-ignore
 import { initialize, playTune, SFX_MAIN } from './sfx/sfx.js';
 
 const TIME_STEP = 1000 / 60;
@@ -63,16 +64,14 @@ const draw = (): void => {
 
 const playSong = () => {
     window.removeEventListener('keydown', playSong);
-    console.info("Start playing...");
     playTune(SFX_MAIN);
-}
+};
 
 export const start = (): void => {
     initializeControls();
     initialize().then(() => {
-        console.info("Sfx loaded.")
         window.addEventListener('keydown', playSong);
     });
-    
+
     window.requestAnimationFrame(gameLoop);
 };
