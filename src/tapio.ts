@@ -21,13 +21,10 @@
  * WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
 
-import { Grid } from './grid';
-import { Block, BlockType, isBlocking, isForest } from './map';
-
-interface GridPosition {
-    xi: number;
-    yi: number;
-}
+import { Character } from './character';
+import { Grid, GridPosition } from './grid';
+import { Block, BlockType, GridMap, isBlocking, isForest } from './map';
+import { Scene } from './scene';
 
 const findNewPosition = (map: Grid<Block>): GridPosition | undefined => {
     for (let gridY = 0; gridY < map.yCount; gridY++) {
@@ -58,12 +55,15 @@ const findNewPosition = (map: Grid<Block>): GridPosition | undefined => {
 export class Tapio {
     position: GridPosition;
     lastExpandTime: number = 0;
+    lastSpawnTime: number = 0;
 
     constructor(xi: number, yi: number) {
         this.position = { xi, yi };
     }
 
-    update(map: Grid<Block>, now: number): void {
+    update(scene: Scene, now: number): void {
+        const map = scene.map;
+
         if (now - this.lastExpandTime > 1000) {
             const newPosition = findNewPosition(map) || this.position;
 
@@ -84,6 +84,17 @@ export class Tapio {
             });
 
             this.lastExpandTime = now;
+        }
+
+        if (now - this.lastSpawnTime > 5000) {
+            const spot = map.findRandomGrass();
+            if (spot) {
+                const enemy = new Character();
+                enemy.isEnemy = true;
+                scene.add(enemy, spot);
+            }
+
+            this.lastSpawnTime = now;
         }
     }
 }

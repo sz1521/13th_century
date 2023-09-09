@@ -21,7 +21,7 @@
  * WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
 
-import { Grid } from './grid';
+import { Grid, GridPosition } from './grid';
 
 const BLOCK_X_COUNT = 30;
 const BLOCK_Y_COUNT = 30;
@@ -54,7 +54,7 @@ export const isForest = (block: Block | undefined): boolean => {
 };
 
 const carveRectange = (
-    blocks: Grid<Block>,
+    map: GridMap,
     xBegin: number,
     xEnd: number,
     yBegin: number,
@@ -62,25 +62,67 @@ const carveRectange = (
 ): void => {
     for (let gridY = yBegin; gridY < yEnd; gridY++) {
         for (let gridX = xBegin; gridX < xEnd; gridX++) {
-            blocks.set(gridX, gridY, { type: BlockType.Floor });
+            map.set(gridX, gridY, { type: BlockType.Floor });
         }
     }
 };
 
-export const createMap = (): Grid<Block> => {
-    const blocks = new Grid<Block>(BLOCK_X_COUNT, BLOCK_Y_COUNT, {
-        type: BlockType.Wall,
-    });
+export class GridMap extends Grid<Block> {
+    grassCount = 0;
 
-    carveRectange(blocks, 1, 6, 20, 29); // bottom-left room (start)
-    carveRectange(blocks, 3, 4, 19, 20); // doorway
-    carveRectange(blocks, 1, 9, 12, 19);
-    carveRectange(blocks, 2, 3, 11, 12); // doorway
-    carveRectange(blocks, 1, 9, 1, 11); // top-left room
-    carveRectange(blocks, 9, 10, 4, 8); // doorway
-    carveRectange(blocks, 10, 29, 1, 11); // top-right room
-    carveRectange(blocks, 19, 21, 11, 14); // hallway
-    carveRectange(blocks, 15, 28, 14, 28); // bottom-right room
+    constructor() {
+        super(BLOCK_X_COUNT, BLOCK_Y_COUNT, { type: BlockType.Wall });
+    }
 
-    return blocks;
+    override set(xIndex: number, yIndex: number, value: Block): void {
+        const oldType = this.get(xIndex, yIndex)?.type;
+
+        super.set(xIndex, yIndex, value);
+
+        if (oldType !== BlockType.Grass && value.type === BlockType.Grass) {
+            this.grassCount++;
+        } else if (
+            oldType === BlockType.Grass &&
+            value.type !== BlockType.Grass
+        ) {
+            this.grassCount--;
+        }
+    }
+
+    findRandomGrass(): GridPosition | undefined {
+        const targetIndex: number = Math.floor(Math.random() * this.grassCount);
+        let currentIndex: number = 0;
+
+        for (let gridY = 0; gridY < this.yCount; gridY++) {
+            for (let gridX = 0; gridX < this.xCount; gridX++) {
+                const block = this.get(gridX, gridY);
+
+                if (block?.type === BlockType.Grass) {
+                    if (currentIndex === targetIndex) {
+                        return { xi: gridX, yi: gridY };
+                    }
+
+                    currentIndex++;
+                }
+            }
+        }
+
+        return undefined;
+    }
+}
+
+export const createMap = (): GridMap => {
+    const map = new GridMap();
+
+    carveRectange(map, 1, 6, 20, 29); // bottom-left room (start)
+    carveRectange(map, 3, 4, 19, 20); // doorway
+    carveRectange(map, 1, 9, 12, 19);
+    carveRectange(map, 2, 3, 11, 12); // doorway
+    carveRectange(map, 1, 9, 1, 11); // top-left room
+    carveRectange(map, 9, 10, 4, 8); // doorway
+    carveRectange(map, 10, 29, 1, 11); // top-right room
+    carveRectange(map, 19, 21, 11, 14); // hallway
+    carveRectange(map, 15, 28, 14, 28); // bottom-right room
+
+    return map;
 };

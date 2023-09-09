@@ -32,11 +32,12 @@ import {
     context,
     treeImage,
 } from './graphics';
-import { Grid } from './grid';
-import { Block, BlockType, createMap, isBlocking } from './map';
+import { BlockType, GridMap, createMap, isBlocking } from './map';
 import { Character } from './character';
 import { Tapio } from './tapio';
 import { GameObject, Movement, getDifference, getDistance } from './gameobject';
+import { Scene } from './scene';
+import { GridPosition } from './grid';
 
 const BLOCK_WIDTH = 100;
 const BLOCK_HEIGHT = 100;
@@ -49,12 +50,13 @@ export enum State {
     GAME_OVER,
 }
 
-export class Level implements Area {
-    private map: Grid<Block> = createMap();
+export class Level implements Scene {
     private camera: Camera = new Camera(this, canvas);
     private player: Character = new Character();
     private tapio: Tapio = new Tapio(4, 24);
     private gameObjects: GameObject[] = [];
+
+    map: GridMap = createMap();
 
     x = 0;
     y = 0;
@@ -68,14 +70,14 @@ export class Level implements Area {
         this.player.y = 28 * BLOCK_HEIGHT;
         this.gameObjects.push(this.player);
 
-        const goblin = new Character();
-        goblin.isEnemy = true;
-        goblin.x = 4 * BLOCK_WIDTH;
-        goblin.y = 24 * BLOCK_HEIGHT;
-        this.gameObjects.push(goblin);
-
         this.camera.follow(this.player);
         this.camera.zoom = 0.5;
+    }
+
+    add(o: GameObject, position: GridPosition): void {
+        o.x = position.xi * BLOCK_WIDTH;
+        o.y = position.yi * BLOCK_HEIGHT;
+        this.gameObjects.push(o);
     }
 
     update(dt: number): void {
@@ -84,7 +86,7 @@ export class Level implements Area {
 
         this.camera.update();
 
-        this.tapio.update(this.map, now);
+        this.tapio.update(this, now);
 
         for (const o of this.gameObjects) {
             const movement =

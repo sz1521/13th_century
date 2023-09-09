@@ -21,6 +21,11 @@
  * WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
 
+export interface GridPosition {
+    xi: number;
+    yi: number;
+}
+
 export class Grid<T> {
     xCount: number;
     yCount: number;
