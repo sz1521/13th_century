@@ -22,7 +22,7 @@
  */
 
 import { Grid } from './grid';
-import { Block, BlockType, isForest } from './map';
+import { Block, BlockType, isBlocking, isForest } from './map';
 
 interface GridPosition {
     xi: number;
@@ -68,7 +68,15 @@ export class Tapio {
             const newPosition = findNewPosition(map) || this.position;
 
             const type: BlockType =
-                Math.random() < 0.3 ? BlockType.Tree : BlockType.Grass;
+                Math.random() < 0.6 &&
+                map.everyNearby(
+                    newPosition.xi,
+                    newPosition.yi,
+                    (block) =>
+                        !(isBlocking(block) || block?.type === BlockType.Tree),
+                )
+                    ? BlockType.Tree
+                    : BlockType.Grass;
 
             map.set(newPosition.xi, newPosition.yi, {
                 type,

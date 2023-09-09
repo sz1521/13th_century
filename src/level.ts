@@ -71,7 +71,7 @@ export class Level implements Area {
         const goblin = new Character();
         goblin.isEnemy = true;
         goblin.x = 4 * BLOCK_WIDTH;
-        goblin.y = 25 * BLOCK_HEIGHT;
+        goblin.y = 24 * BLOCK_HEIGHT;
         this.gameObjects.push(goblin);
 
         this.camera.follow(this.player);

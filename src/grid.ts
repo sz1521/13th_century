@@ -40,4 +40,21 @@ export class Grid<T> {
     set(xIndex: number, yIndex: number, value: T): void {
         this.items[yIndex * this.xCount + xIndex] = value;
     }
+
+    everyNearby(
+        xi: number,
+        yi: number,
+        predicate: (item: T | undefined) => boolean,
+    ) {
+        return (
+            predicate(this.get(xi - 1, yi - 1)) &&
+            predicate(this.get(xi, yi - 1)) &&
+            predicate(this.get(xi + 1, yi - 1)) &&
+            predicate(this.get(xi - 1, yi)) &&
+            predicate(this.get(xi + 1, yi)) &&
+            predicate(this.get(xi - 1, yi + 1)) &&
+            predicate(this.get(xi, yi + 1)) &&
+            predicate(this.get(xi + 1, yi + 1))
+        );
+    }
 }
