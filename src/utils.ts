@@ -22,8 +22,15 @@
  */
 
 /*
- * Returns a random number between 0 and max.
+ * Returns a random number between [0, max).
  */
 export const random = (max = 1): number => {
     return Math.random() * max;
+};
+
+/*
+ * Random number between [0, max).
+ */
+export const randomInt = (max: number): number => {
+    return Math.floor(Math.random() * max);
 };
