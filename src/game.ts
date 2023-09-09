@@ -26,7 +26,7 @@ import { canvas, context } from './graphics';
 import { Level, State } from './level';
 // eslint-disable-next-line @typescript-eslint/ban-ts-comment
 // @ts-ignore
-import { initialize, playTune, SFX_MAIN } from './sfx/sfx.js';
+import { initialize, playTune, SFX_START, SFX_FINISHED } from './sfx/sfx.js';
 
 const TIME_STEP = 1000 / 60;
 const MAX_FRAME = TIME_STEP * 5;
@@ -49,29 +49,44 @@ const update = (dt: number): void => {
     level.update(dt);
 };
 
-const draw = (): void => {
-    context.fillStyle = 'black';
-    context.fillRect(0, 0, canvas.width, canvas.height);
+const centerText = (text: string, fontSize: number, fontName: string) => {
+    context.fillStyle = 'white';
+    context.font = fontSize + 'px ' + fontName;
+    const textWidth = context.measureText(text).width;
+    context.fillText(text, (canvas.width - textWidth) / 2, canvas.height / 2);
+}
 
+const draw = (): void => {
     level.draw();
 
     if (level.state === State.GAME_OVER) {
-        context.font = '22px Sans-serif';
+        playTune(SFX_FINISHED)
+
+        context.fillStyle = 'black';
+        context.fillRect(0, 0, canvas.width, canvas.height);
+        context.globalAlpha = 0.6;
+        context.save();
+
         context.fillStyle = 'white';
-        context.fillText('GAME OVER', canvas.width * 0.45, canvas.height / 2);
+
+        centerText('GAME OVER', 64, 'Sans-serif');
+
+        //TODO: Stop level and wait for button to go to start screen
     }
+
 };
 
-const playSong = () => {
-    window.removeEventListener('keydown', playSong);
-    playTune(SFX_MAIN);
+const startLevel = () => {
+    window.removeEventListener('keydown', startLevel);
+    playTune(SFX_START);
+    window.requestAnimationFrame(gameLoop);
 };
 
 export const start = (): void => {
+    centerText('Press any key to start', 32, 'Sans-serif');
+
     initializeControls();
     initialize().then(() => {
-        window.addEventListener('keydown', playSong);
+        window.addEventListener('keydown', startLevel);
     });
-
-    window.requestAnimationFrame(gameLoop);
 };
