@@ -111,7 +111,7 @@ export class Character implements GameObject {
         if (this.isEnemy) {
             context.filter = 'grayscale()';
             context.globalAlpha = 0.5;
-         }
+        }
 
         const x = this.x - xMargin;
         const y = this.y - (imageHeight - this.height);
