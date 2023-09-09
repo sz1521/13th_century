@@ -21,27 +21,13 @@
  * WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
 
-export interface Movement {
-    dx: number;
-    dy: number;
+import { Area } from './area';
+import { GameObject } from './gameobject';
+import { GridPosition } from './grid';
+import { GridMap } from './map';
+
+export interface Scene extends Area {
+    map: GridMap;
+
+    add(o: GameObject, position: GridPosition): void;
 }
-
-export interface GameObject {
-    x: number;
-    y: number;
-    width: number;
-    height: number;
-
-    draw(): void;
-    move(movement: Movement): void;
-}
-
-export const getDifference = (c: GameObject, other: GameObject): Movement => {
-    const dx = other.x + other.width / 2 - (c.x + c.width / 2);
-    const dy = other.y + other.height / 2 - (c.y + c.height / 2);
-    return { dx, dy };
-};
-
-export const getDistance = (movement: Movement): number => {
-    return Math.abs(movement.dx) + Math.abs(movement.dy);
-};

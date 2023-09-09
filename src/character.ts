@@ -22,7 +22,7 @@
  */
 
 import { Direction } from './area';
-import { GameObject } from './gameobject';
+import { GameObject, Movement } from './gameobject';
 import { context } from './graphics';
 import {
     AnimationDefinition,
@@ -78,7 +78,7 @@ export class Character implements GameObject {
         startTime: performance.now(),
     };
 
-    move(dx: number, dy: number): void {
+    move({ dx, dy }: Movement): void {
         const oldDirection = this.direction;
         let newDirection = this.direction;
 
