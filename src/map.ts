@@ -46,6 +46,13 @@ export const isBlocking = (block: Block | undefined): boolean => {
     return !!block && block.type === BlockType.Wall;
 };
 
+export const isForest = (block: Block | undefined): boolean => {
+    return (
+        !!block &&
+        (block.type === BlockType.Grass || block.type === BlockType.Tree)
+    );
+};
+
 const carveRectange = (
     blocks: Grid<Block>,
     xBegin: number,

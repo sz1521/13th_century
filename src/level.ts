@@ -53,7 +53,7 @@ export class Level implements Area {
     private map: Grid<Block> = createMap();
     private camera: Camera = new Camera(this, canvas);
     private player: Character = new Character();
-    private tapio: Tapio = new Tapio(0, 20);
+    private tapio: Tapio = new Tapio(4, 24);
     private gameObjects: GameObject[] = [];
 
     x = 0;
