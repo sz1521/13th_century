@@ -26,14 +26,14 @@
 import { song } from './song.js';
 import CPlayer from './musicplayer.js';
 
-//export const SFX_START = "start";
+export const SFX_START = "main";
 export const SFX_MAIN = 'main';
-//export const SFX_END = "end";
+// export const SFX_END = "end";
 //export const SFX_EMPTY = "empty";
 //export const SFX_LASER = "laser";
 //export const SFX_JUMP = "jump";
 //export const SFX_SWITCH = "switch";
-//export const SFX_FINISHED = "finished";
+export const SFX_FINISHED = "finished";
 
 const mainTune = document.createElement('audio');
 //const jumpfx = document.createElement("audio");
@@ -110,11 +110,11 @@ export const playTune = (tune) => {
             FadeIn(mainTune, 0.9);
             break;
         }
-        case SFX_END: {
-            FadeIn(endfx, 0.5);
-            FadeOut(mainTune);
-            break;
-        }
+        // case SFX_END: {
+        //     FadeIn(endfx, 0.5);
+        //     FadeOut(mainTune);
+        //     break;
+        // }
         //case SFX_JUMP: {
         //  jumpfx.currentTime = 0;
         //  jumpfx.play();
