@@ -109,6 +109,10 @@ export class Level implements Scene {
     }
 
     update(dt: number): void {
+        if (this.state === State.GAME_OVER) {
+            return;
+        }
+
         const now = performance.now();
         const controls = getControls();
 
