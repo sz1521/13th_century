@@ -69,6 +69,7 @@ const carveRectange = (
 };
 
 export class GridMap extends Grid<Block> {
+    floorCount = 0;
     grassCount = 0;
     forestCount = 0;
 
@@ -81,6 +82,15 @@ export class GridMap extends Grid<Block> {
         const oldType = old?.type;
 
         super.set(xIndex, yIndex, value);
+
+        if (oldType !== BlockType.Floor && value.type === BlockType.Floor) {
+            this.floorCount++;
+        } else if (
+            oldType === BlockType.Floor &&
+            value.type !== BlockType.Floor
+        ) {
+            this.floorCount--;
+        }
 
         if (oldType !== BlockType.Grass && value.type === BlockType.Grass) {
             this.grassCount++;
@@ -96,6 +106,13 @@ export class GridMap extends Grid<Block> {
         } else if (isForest(old) && !isForest(value)) {
             this.forestCount--;
         }
+    }
+
+    findRandomFloor(): GridPosition | undefined {
+        return this.findRandom(
+            this.floorCount,
+            (block) => block?.type === BlockType.Floor,
+        );
     }
 
     findRandomGrass(): GridPosition | undefined {

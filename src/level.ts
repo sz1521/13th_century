@@ -37,12 +37,15 @@ import { Tapio } from './tapio';
 import { GameObject, Movement, getDifference, getDistance } from './gameobject';
 import { Scene } from './scene';
 import { GridPosition } from './grid';
+import { Item } from './item';
 
 const BLOCK_WIDTH = 100;
 const BLOCK_HEIGHT = 100;
 
 const PLAYER_SPEED = 0.3;
 const ENEMY_SPEED = 0.1;
+
+const CROSS_EFFECTIVE_TIME_MS = 10000;
 
 export enum State {
     RUNNING,
@@ -54,6 +57,8 @@ export class Level implements Scene {
     private player: Character = new Character();
     private tapio: Tapio = new Tapio();
     private gameObjects: GameObject[] = [];
+
+    private crossPickTime?: number;
 
     map: GridMap = createMap();
 
@@ -67,8 +72,20 @@ export class Level implements Scene {
     constructor() {
         this.add(this.player, { xi: 2, yi: 28 });
 
+        this.insertItems();
+
         this.camera.follow(this.player);
         this.camera.zoom = 0.5;
+    }
+
+    private insertItems(): void {
+        for (let i = 0; i < 8; i++) {
+            const cross = new Item();
+            const position = this.map.findRandomFloor();
+            if (position) {
+                this.add(cross, position);
+            }
+        }
     }
 
     add(o: GameObject, position: GridPosition): void {
@@ -77,13 +94,32 @@ export class Level implements Scene {
         this.gameObjects.push(o);
     }
 
+    // return time left
+    playerHasCross(): number | undefined {
+        const now = performance.now();
+
+        if (this.crossPickTime == null) {
+            return undefined;
+        }
+
+        const timeElapsed = now - this.crossPickTime;
+        const timeLeft = CROSS_EFFECTIVE_TIME_MS - timeElapsed;
+
+        return timeElapsed < CROSS_EFFECTIVE_TIME_MS ? timeLeft : undefined;
+    }
+
     update(dt: number): void {
         const now = performance.now();
         const controls = getControls();
 
         this.camera.update();
 
-        this.tapio.update(this, now);
+        if (this.state !== State.GAME_OVER) {
+            // Stop hogging resources
+            this.tapio.update(this, now);
+        }
+
+        const objectsToRemove: GameObject[] = [];
 
         for (const o of this.gameObjects) {
             const movement =
@@ -92,10 +128,26 @@ export class Level implements Scene {
                     : this.followPlayer(dt, o);
             this.move(o, movement);
 
-            if (o !== this.player) {
+            if (o !== this.player && o instanceof Character) {
                 if (getDistance(getDifference(o, this.player)) < 60) {
                     this.state = State.GAME_OVER;
                 }
+            }
+
+            if (
+                o instanceof Item &&
+                getDistance(getDifference(o, this.player)) < 60
+            ) {
+                objectsToRemove.push(o);
+                this.crossPickTime = now;
+            }
+        }
+
+        if (objectsToRemove.length > 0) {
+            for (const removed of objectsToRemove) {
+                this.gameObjects = this.gameObjects.filter(
+                    (o) => o !== removed,
+                );
             }
         }
     }
@@ -137,6 +189,12 @@ export class Level implements Scene {
         if (50 < distance && distance < 400) {
             dx = Math.sign(diff.dx) * ENEMY_SPEED * dt;
             dy = Math.sign(diff.dy) * ENEMY_SPEED * dt;
+        }
+
+        if (this.playerHasCross() != null) {
+            // Evade player instead.
+            dx = -(dx / 3);
+            dy = -(dy / 3);
         }
 
         return { dx, dy };

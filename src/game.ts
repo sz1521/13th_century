@@ -22,7 +22,13 @@
  */
 
 import { initializeControls } from './controls';
-import { canvas, context } from './graphics';
+import {
+    CROSS_IMAGE_HEIGHT,
+    CROSS_IMAGE_WIDTH,
+    canvas,
+    context,
+    crossImage,
+} from './graphics';
 import { Level, State } from './level';
 // eslint-disable-next-line @typescript-eslint/ban-ts-comment
 // @ts-ignore
@@ -30,6 +36,9 @@ import { initialize, playTune, SFX_START, SFX_FINISHED } from './sfx/sfx.js';
 
 const TIME_STEP = 1000 / 60;
 const MAX_FRAME = TIME_STEP * 5;
+
+const ITEM_FLASHING_TIME_MS = 4000;
+const FLASHING_INTERVAL_MS = 400;
 
 let lastTime = 0;
 
@@ -63,8 +72,32 @@ const centerText = (
     context.globalAlpha = 1;
 };
 
+const flashing = (now: number): boolean => {
+    return Math.floor(now / FLASHING_INTERVAL_MS) % 2 === 0;
+};
+
+const drawCollectedItems = (): void => {
+    const now = performance.now();
+
+    const crossTimeLeft = level.playerHasCross();
+
+    if (crossTimeLeft != null) {
+        if (crossTimeLeft > ITEM_FLASHING_TIME_MS || flashing(now)) {
+            context.drawImage(
+                crossImage,
+                10,
+                10,
+                CROSS_IMAGE_WIDTH / 2,
+                CROSS_IMAGE_HEIGHT / 2,
+            );
+        }
+    }
+};
+
 const draw = (): void => {
     level.draw();
+
+    drawCollectedItems();
 
     if (level.state === State.GAME_OVER) {
         playTune(SFX_FINISHED);
