@@ -101,7 +101,6 @@ const startLevel = () => {
     );
     let radius = maxRadius;
 
-    const fadeSpeed = 0.1; // Adjust the fade speed as needed
     window.requestAnimationFrame(gameLoop);
 
     const draw = () => {
@@ -109,8 +108,6 @@ const startLevel = () => {
         context.arc(centerX, centerY, radius, 0, Math.PI * 2);
         context.fillStyle = '#206010';
         context.fill();
-
-        context.globalAlpha = 1;
 
         radius -= 10;
 
