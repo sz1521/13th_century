@@ -105,8 +105,6 @@ const startLevel = () => {
     window.requestAnimationFrame(gameLoop);
 
     const draw = () => {
-        context.globalAlpha = radius / maxRadius;
-
         context.beginPath();
         context.arc(centerX, centerY, radius, 0, Math.PI * 2);
         context.fillStyle = '#206010';
