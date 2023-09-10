@@ -22,6 +22,7 @@
  */
 
 import { Grid, GridPosition } from './grid';
+import { randomInt } from './utils';
 
 const BLOCK_X_COUNT = 30;
 const BLOCK_Y_COUNT = 30;
@@ -69,13 +70,15 @@ const carveRectange = (
 
 export class GridMap extends Grid<Block> {
     grassCount = 0;
+    forestCount = 0;
 
     constructor() {
         super(BLOCK_X_COUNT, BLOCK_Y_COUNT, { type: BlockType.Wall });
     }
 
     override set(xIndex: number, yIndex: number, value: Block): void {
-        const oldType = this.get(xIndex, yIndex)?.type;
+        const old = this.get(xIndex, yIndex);
+        const oldType = old?.type;
 
         super.set(xIndex, yIndex, value);
 
@@ -87,17 +90,37 @@ export class GridMap extends Grid<Block> {
         ) {
             this.grassCount--;
         }
+
+        if (!isForest(old) && isForest(value)) {
+            this.forestCount++;
+        } else if (isForest(old) && !isForest(value)) {
+            this.forestCount--;
+        }
     }
 
     findRandomGrass(): GridPosition | undefined {
-        const targetIndex: number = Math.floor(Math.random() * this.grassCount);
+        return this.findRandom(
+            this.grassCount,
+            (block) => block?.type === BlockType.Grass,
+        );
+    }
+
+    findRandomForest(): GridPosition | undefined {
+        return this.findRandom(this.forestCount, isForest);
+    }
+
+    private findRandom(
+        count: number,
+        predicate: (block: Block | undefined) => boolean,
+    ): GridPosition | undefined {
+        const targetIndex: number = randomInt(count);
         let currentIndex: number = 0;
 
         for (let gridY = 0; gridY < this.yCount; gridY++) {
             for (let gridX = 0; gridX < this.xCount; gridX++) {
                 const block = this.get(gridX, gridY);
 
-                if (block?.type === BlockType.Grass) {
+                if (predicate(block)) {
                     if (currentIndex === targetIndex) {
                         return { xi: gridX, yi: gridY };
                     }
@@ -115,12 +138,17 @@ export const createMap = (): GridMap => {
     const map = new GridMap();
 
     carveRectange(map, 1, 6, 20, 29); // bottom-left room (start)
+    map.set(4, 24, { type: BlockType.Grass });
+
     carveRectange(map, 3, 4, 19, 20); // doorway
     carveRectange(map, 1, 9, 12, 19);
     carveRectange(map, 2, 3, 11, 12); // doorway
     carveRectange(map, 1, 9, 1, 11); // top-left room
     carveRectange(map, 9, 10, 4, 8); // doorway
+
     carveRectange(map, 10, 29, 1, 11); // top-right room
+    map.set(16, 6, { type: BlockType.Grass });
+
     carveRectange(map, 19, 21, 11, 14); // hallway
     carveRectange(map, 15, 28, 14, 28); // bottom-right room
 

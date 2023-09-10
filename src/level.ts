@@ -52,7 +52,7 @@ export enum State {
 export class Level implements Scene {
     private camera: Camera = new Camera(this, canvas);
     private player: Character = new Character();
-    private tapio: Tapio = new Tapio(4, 24);
+    private tapio: Tapio = new Tapio();
     private gameObjects: GameObject[] = [];
 
     map: GridMap = createMap();
@@ -65,9 +65,7 @@ export class Level implements Scene {
     state: State = State.RUNNING;
 
     constructor() {
-        this.player.x = 2 * BLOCK_WIDTH;
-        this.player.y = 28 * BLOCK_HEIGHT;
-        this.gameObjects.push(this.player);
+        this.add(this.player, { xi: 2, yi: 28 });
 
         this.camera.follow(this.player);
         this.camera.zoom = 0.5;

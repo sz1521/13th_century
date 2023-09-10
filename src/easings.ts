@@ -32,3 +32,10 @@ export function easeInOutBack(x: number): number {
         ? (Math.pow(2 * x, 2) * ((c2 + 1) * 2 * x - c2)) / 2
         : (Math.pow(2 * x - 2, 2) * ((c2 + 1) * (x * 2 - 2) + c2) + 2) / 2;
 }
+
+/*
+ * https://easings.net/#easeOutQuint
+ */
+export function easeOutQuint(x: number): number {
+    return 1 - Math.pow(1 - x, 5);
+}

@@ -22,29 +22,27 @@
  */
 
 import { Character } from './character';
-import { Grid, GridPosition } from './grid';
-import { Block, BlockType, isBlocking, isForest } from './map';
+import { GridPosition } from './grid';
+import { BlockType, GridMap, isBlocking } from './map';
 import { Scene } from './scene';
+import { randomInt } from './utils';
 
-const findNewPosition = (map: Grid<Block>): GridPosition | undefined => {
-    for (let gridY = 0; gridY < map.yCount; gridY++) {
-        for (let gridX = 0; gridX < map.xCount; gridX++) {
-            const block = map.get(gridX, gridY);
+const findNewPosition = (map: GridMap): GridPosition | undefined => {
+    for (let i = 0; i < 10; i++) {
+        const forestPos = map.findRandomForest();
 
-            if (block?.type === BlockType.Floor) {
-                const blockLeft = map.get(gridX - 1, gridY);
-                const blockRight = map.get(gridX + 1, gridY);
-                const blockUp = map.get(gridX, gridY - 1);
-                const blockDown = map.get(gridX, gridY + 1);
+        if (forestPos) {
+            const left = { xi: forestPos.xi - 1, yi: forestPos.yi };
+            const right = { xi: forestPos.xi + 1, yi: forestPos.yi };
+            const up = { xi: forestPos.xi, yi: forestPos.yi - 1 };
+            const down = { xi: forestPos.xi, yi: forestPos.yi + 1 };
 
-                if (
-                    isForest(blockLeft) ||
-                    isForest(blockRight) ||
-                    isForest(blockUp) ||
-                    isForest(blockDown)
-                ) {
-                    return { xi: gridX, yi: gridY };
-                }
+            const expansionBlocks = [left, right, up, down]
+                .map((pos) => ({ pos, block: map.get(pos.xi, pos.yi) }))
+                .filter((item) => item.block?.type === BlockType.Floor);
+
+            if (expansionBlocks.length > 0) {
+                return expansionBlocks[randomInt(expansionBlocks.length)].pos;
             }
         }
     }
@@ -53,48 +51,57 @@ const findNewPosition = (map: Grid<Block>): GridPosition | undefined => {
 };
 
 export class Tapio {
-    position: GridPosition;
     lastExpandTime: number = 0;
     lastSpawnTime: number = 0;
-
-    constructor(xi: number, yi: number) {
-        this.position = { xi, yi };
-    }
 
     update(scene: Scene, now: number): void {
         const map = scene.map;
 
         if (now - this.lastExpandTime > 1000) {
-            const newPosition = findNewPosition(map) || this.position;
-
-            const type: BlockType =
-                Math.random() < 0.6 &&
-                map.everyNearby(
-                    newPosition.xi,
-                    newPosition.yi,
-                    (block) =>
-                        !(isBlocking(block) || block?.type === BlockType.Tree),
-                )
-                    ? BlockType.Tree
-                    : BlockType.Grass;
-
-            map.set(newPosition.xi, newPosition.yi, {
-                type,
-                time: performance.now(),
-            });
-
+            this.expandForest(map);
             this.lastExpandTime = now;
         }
 
         if (now - this.lastSpawnTime > 5000) {
-            const spot = map.findRandomGrass();
-            if (spot) {
-                const enemy = new Character();
-                enemy.isEnemy = true;
-                scene.add(enemy, spot);
-            }
-
+            this.spawnEnemy(scene);
             this.lastSpawnTime = now;
         }
+    }
+
+    private expandForest(map: GridMap): void {
+        const newPosition = findNewPosition(map);
+
+        if (!newPosition) {
+            return;
+        }
+
+        const type: BlockType =
+            Math.random() < 0.6 &&
+            // Do not place a tree unless there is space around it.
+            map.everyNearby(
+                newPosition.xi,
+                newPosition.yi,
+                (block) =>
+                    !(isBlocking(block) || block?.type === BlockType.Tree),
+            )
+                ? BlockType.Tree
+                : BlockType.Grass;
+
+        map.set(newPosition.xi, newPosition.yi, {
+            type,
+            time: performance.now(),
+        });
+    }
+
+    private spawnEnemy(scene: Scene): void {
+        const position = scene.map.findRandomGrass();
+
+        if (!position) {
+            return;
+        }
+
+        const enemy = new Character();
+        enemy.isEnemy = true;
+        scene.add(enemy, position);
     }
 }

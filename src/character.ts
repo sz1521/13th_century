@@ -35,6 +35,7 @@ import {
     playerWestStandAnimation,
     playerWestWalkAnimation,
 } from './animations';
+import { easeOutQuint } from './easings';
 
 const imageWidth = 50;
 const imageHeight = 135;
@@ -60,6 +61,16 @@ const selectAnimation = (
     }
 };
 
+const riseFromGroundUp = (
+    context: CanvasRenderingContext2D,
+    amount: number,
+): void => {
+    context.beginPath();
+    context.rect(0, 0, imageWidth, imageHeight);
+    context.clip();
+    context.translate(0, imageHeight - easeOutQuint(amount) * imageHeight);
+};
+
 export class Character implements GameObject {
     x: number = 0;
     y: number = 0;
@@ -70,6 +81,7 @@ export class Character implements GameObject {
     // Temporary trick to draw enemies differently.
     isEnemy: boolean = false;
 
+    private startTime: number = performance.now();
     private direction: Direction = Direction.Down;
     private isMoving: boolean = false;
 
@@ -120,6 +132,11 @@ export class Character implements GameObject {
 
         const now = performance.now();
         const image = getFrame(this.animation, now);
+
+        const timeElapsed = now - this.startTime;
+        if (this.isEnemy && timeElapsed < 1000) {
+            riseFromGroundUp(context, timeElapsed / 1000);
+        }
 
         if (this.direction === Direction.Right) {
             // mirror image
