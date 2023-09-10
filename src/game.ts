@@ -30,9 +30,16 @@ import {
     crossImage,
 } from './graphics';
 import { Level, State } from './level';
-// eslint-disable-next-line @typescript-eslint/ban-ts-comment
-// @ts-ignore
-import { initialize, playTune, SFX_START, SFX_FINISHED } from './sfx/sfx.js';
+
+import {
+    initialize,
+    playTune,
+    SFX_START,
+    SFX_MAIN,
+    SFX_FINISHED,
+    // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+    // @ts-ignore
+} from './sfx/sfx.js';
 
 const TIME_STEP = 1000 / 60;
 const MAX_FRAME = TIME_STEP * 5;
@@ -55,7 +62,9 @@ const gameLoop = (t: number): void => {
 };
 
 const update = (dt: number): void => {
-    level.update(dt);
+    if (level.state !== State.GAME_OVER) {
+        level.update(dt);
+    }
 };
 
 const centerText = (
@@ -94,44 +103,52 @@ const drawCollectedItems = (): void => {
     }
 };
 
+const gameOver = (): void => {
+    playTune(SFX_FINISHED);
+
+    const centerX = canvas.width / 2;
+    const centerY = canvas.height / 2;
+
+    const maxRadius = Math.sqrt(
+        Math.pow(canvas.width, 2) + Math.pow(canvas.height, 2),
+    );
+    let radius = 1;
+
+    const draw = () => {
+        context.beginPath();
+        context.arc(centerX, centerY, radius, 0, Math.PI * 2);
+        context.fillStyle = '#802010';
+        context.fill();
+
+        radius += 10;
+
+        if (radius <= maxRadius) {
+            requestAnimationFrame(draw);
+        }
+        centerText('GAME OVER', 64, 'Sans-serif', radius / maxRadius);
+    };
+    draw();
+};
+
 const draw = (): void => {
+    if (level.state === State.GAME_OVER) {
+        gameOver();
+        start();
+        return;
+    }
+
     level.draw();
 
     drawCollectedItems();
-
-    if (level.state === State.GAME_OVER) {
-        playTune(SFX_FINISHED);
-
-        const centerX = canvas.width / 2;
-        const centerY = canvas.height / 2;
-
-        const maxRadius = Math.sqrt(
-            Math.pow(canvas.width, 2) + Math.pow(canvas.height, 2),
-        );
-        let radius = 1;
-
-        const draw = () => {
-            context.beginPath();
-            context.arc(centerX, centerY, radius, 0, Math.PI * 2);
-            context.fillStyle = '#802010';
-            context.fill();
-
-            radius += 10;
-
-            if (radius <= maxRadius) {
-                requestAnimationFrame(draw);
-            }
-            centerText('GAME OVER', 64, 'Sans-serif', radius / maxRadius);
-        };
-        draw();
-
-        //TODO: Stop level and wait for button to go to start screen
-    }
 };
 
 const startLevel = () => {
     window.removeEventListener('keydown', startLevel);
-    playTune(SFX_START);
+    if (level.state !== State.GAME_OVER) {
+        playTune(SFX_START);
+    } else {
+        playTune(SFX_MAIN);
+    }
 
     const centerX = canvas.width / 2;
     const centerY = canvas.height / 2;
@@ -165,7 +182,12 @@ export const start = (): void => {
     centerText('Press any key to start', 32, 'Sans-serif');
 
     initializeControls();
-    initialize().then(() => {
+    if (level.state === State.GAME_OVER) {
+        // TODO: How to restart LEVEL as new game?
         window.addEventListener('keydown', startLevel);
-    });
+    } else {
+        initialize().then(() => {
+            window.addEventListener('keydown', startLevel);
+        });
+    }
 };

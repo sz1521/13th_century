@@ -120,6 +120,10 @@ export class Character implements GameObject {
 
     draw(): void {
         context.save();
+        //TODO: Make this check work
+        //if (level.playerHasCross() == null) {
+        //    context.filter = 'brightness(0.6)';
+        //}
         if (this.isEnemy) {
             context.filter = 'grayscale()';
             context.globalAlpha = 0.5;
