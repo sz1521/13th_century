@@ -49,7 +49,12 @@ const update = (dt: number): void => {
     level.update(dt);
 };
 
-const centerText = (text: string, fontSize: number, fontName: string, alpha = 1) => {
+const centerText = (
+    text: string,
+    fontSize: number,
+    fontName: string,
+    alpha = 1,
+) => {
     context.globalAlpha = alpha > 0 ? alpha : 0;
     context.fillStyle = 'white';
     context.font = fontSize + 'px ' + fontName;
