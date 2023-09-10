@@ -23,7 +23,7 @@
 
 import { Character } from './character';
 import { Grid, GridPosition } from './grid';
-import { Block, BlockType, GridMap, isBlocking, isForest } from './map';
+import { Block, BlockType, isBlocking, isForest } from './map';
 import { Scene } from './scene';
 
 const findNewPosition = (map: Grid<Block>): GridPosition | undefined => {

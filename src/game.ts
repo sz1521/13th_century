@@ -54,13 +54,13 @@ const centerText = (text: string, fontSize: number, fontName: string) => {
     context.font = fontSize + 'px ' + fontName;
     const textWidth = context.measureText(text).width;
     context.fillText(text, (canvas.width - textWidth) / 2, canvas.height / 2);
-}
+};
 
 const draw = (): void => {
     level.draw();
 
     if (level.state === State.GAME_OVER) {
-        playTune(SFX_FINISHED)
+        playTune(SFX_FINISHED);
 
         context.fillStyle = 'black';
         context.fillRect(0, 0, canvas.width, canvas.height);
@@ -73,7 +73,6 @@ const draw = (): void => {
 
         //TODO: Stop level and wait for button to go to start screen
     }
-
 };
 
 const startLevel = () => {

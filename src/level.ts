@@ -21,7 +21,6 @@
  * WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
 
-import { Area } from './area';
 import { Camera } from './camera';
 import { Controls, getControls } from './controls';
 import { easeInOutBack } from './easings';
