@@ -83,7 +83,10 @@ export class Level implements Scene {
 
         this.camera.update();
 
-        this.tapio.update(this, now);
+        if (this.state !== State.GAME_OVER) {
+            // Stop hogging resources
+            this.tapio.update(this, now);
+        }
 
         for (const o of this.gameObjects) {
             const movement =
