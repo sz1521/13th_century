@@ -49,11 +49,13 @@ const update = (dt: number): void => {
     level.update(dt);
 };
 
-const centerText = (text: string, fontSize: number, fontName: string) => {
+const centerText = (text: string, fontSize: number, fontName: string, alpha = 1) => {
+    context.globalAlpha = alpha > 0 ? alpha : 0;
     context.fillStyle = 'white';
     context.font = fontSize + 'px ' + fontName;
     const textWidth = context.measureText(text).width;
     context.fillText(text, (canvas.width - textWidth) / 2, canvas.height / 2);
+    context.globalAlpha = 1;
 };
 
 const draw = (): void => {
@@ -81,7 +83,7 @@ const draw = (): void => {
             if (radius <= maxRadius) {
                 requestAnimationFrame(draw);
             }
-            centerText('GAME OVER', 64, 'Sans-serif');
+            centerText('GAME OVER', 64, 'Sans-serif', radius / maxRadius);
         };
         draw();
 
@@ -110,11 +112,10 @@ const startLevel = () => {
         context.fill();
 
         radius -= 10;
-
         if (radius > 0) {
             requestAnimationFrame(draw);
         }
-        centerText('Ready!', 64, 'Sans-serif');
+        centerText('Ready!', 64, 'Sans-serif', radius / maxRadius);
     };
     draw();
 };
