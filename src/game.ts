@@ -62,14 +62,28 @@ const draw = (): void => {
     if (level.state === State.GAME_OVER) {
         playTune(SFX_FINISHED);
 
-        context.fillStyle = 'black';
-        context.fillRect(0, 0, canvas.width, canvas.height);
-        context.globalAlpha = 0.6;
-        context.save();
+        const centerX = canvas.width / 2;
+        const centerY = canvas.height / 2;
 
-        context.fillStyle = 'white';
+        const maxRadius = Math.sqrt(
+            Math.pow(canvas.width, 2) + Math.pow(canvas.height, 2),
+        );
+        let radius = 1;
 
-        centerText('GAME OVER', 64, 'Sans-serif');
+        const draw = () => {
+            context.beginPath();
+            context.arc(centerX, centerY, radius, 0, Math.PI * 2);
+            context.fillStyle = '#802010';
+            context.fill();
+
+            radius += 10;
+
+            if (radius <= maxRadius) {
+                requestAnimationFrame(draw);
+            }
+            centerText('GAME OVER', 64, 'Sans-serif');
+        };
+        draw();
 
         //TODO: Stop level and wait for button to go to start screen
     }
@@ -78,10 +92,42 @@ const draw = (): void => {
 const startLevel = () => {
     window.removeEventListener('keydown', startLevel);
     playTune(SFX_START);
+
+    const centerX = canvas.width / 2;
+    const centerY = canvas.height / 2;
+
+    const maxRadius = Math.sqrt(
+        Math.pow(canvas.width, 2) + Math.pow(canvas.height, 2),
+    );
+    let radius = maxRadius;
+
+    const fadeSpeed = 0.1; // Adjust the fade speed as needed
     window.requestAnimationFrame(gameLoop);
+
+    const draw = () => {
+        context.globalAlpha = radius / maxRadius;
+
+        context.beginPath();
+        context.arc(centerX, centerY, radius, 0, Math.PI * 2);
+        context.fillStyle = '#206010';
+        context.fill();
+
+        context.globalAlpha = 1;
+
+        radius -= 10;
+
+        if (radius > 0) {
+            requestAnimationFrame(draw);
+        }
+        centerText('Ready!', 64, 'Sans-serif');
+    };
+    draw();
 };
 
 export const start = (): void => {
+    context.fillStyle = '#206010';
+    context.rect(0, 0, canvas.width, canvas.height);
+    context.fill();
     centerText('Press any key to start', 32, 'Sans-serif');
 
     initializeControls();
