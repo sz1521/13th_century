@@ -21,7 +21,7 @@
  * WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
 
-import { initializeControls } from './controls';
+import { initializeControls, waitForAnyKey } from './controls';
 import {
     CROSS_IMAGE_HEIGHT,
     CROSS_IMAGE_WIDTH,
@@ -30,9 +30,16 @@ import {
     crossImage,
 } from './graphics';
 import { Level, State } from './level';
-// eslint-disable-next-line @typescript-eslint/ban-ts-comment
-// @ts-ignore
-import { initialize, playTune, SFX_START, SFX_FINISHED } from './sfx/sfx.js';
+
+import {
+    initialize,
+    playTune,
+    SFX_START,
+    SFX_MAIN,
+    SFX_FINISHED,
+    // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+    // @ts-ignore
+} from './sfx/sfx.js';
 
 const TIME_STEP = 1000 / 60;
 const MAX_FRAME = TIME_STEP * 5;
@@ -40,9 +47,45 @@ const MAX_FRAME = TIME_STEP * 5;
 const ITEM_FLASHING_TIME_MS = 4000;
 const FLASHING_INTERVAL_MS = 400;
 
-let lastTime = 0;
+const maxRadius = Math.sqrt(
+    Math.pow(canvas.width, 2) + Math.pow(canvas.height, 2),
+);
 
-const level: Level = new Level();
+enum GameState {
+    Init,
+    Ready,
+    Running,
+    GameOver,
+}
+
+let gameState: GameState = GameState.Init;
+
+// For drawing start- and game over screens.
+let radius = 0;
+
+let lastTime = 0;
+let level: Level = new Level();
+
+const setState = (state: GameState): void => {
+    gameState = state;
+
+    switch (state) {
+        case GameState.Ready:
+            level = new Level();
+            radius = maxRadius;
+            playTune(SFX_START);
+            break;
+        case GameState.Running:
+            playTune(SFX_MAIN);
+            break;
+        case GameState.GameOver:
+            radius = 1;
+            playTune(SFX_FINISHED);
+            break;
+        default:
+            break;
+    }
+};
 
 const gameLoop = (t: number): void => {
     requestAnimationFrame(gameLoop);
@@ -55,7 +98,17 @@ const gameLoop = (t: number): void => {
 };
 
 const update = (dt: number): void => {
-    level.update(dt);
+    switch (gameState) {
+        case GameState.Running: {
+            level.update(dt);
+            if (level.state === State.GAME_OVER) {
+                setState(GameState.GameOver);
+            }
+            break;
+        }
+        default:
+            break;
+    }
 };
 
 const centerText = (
@@ -96,76 +149,63 @@ const drawCollectedItems = (): void => {
 
 const draw = (): void => {
     level.draw();
-
     drawCollectedItems();
 
-    if (level.state === State.GAME_OVER) {
-        playTune(SFX_FINISHED);
+    switch (gameState) {
+        case GameState.Ready: {
+            const centerX = canvas.width / 2;
+            const centerY = canvas.height / 2;
 
-        const centerX = canvas.width / 2;
-        const centerY = canvas.height / 2;
+            context.beginPath();
+            context.arc(centerX, centerY, radius, 0, Math.PI * 2);
+            context.fillStyle = '#206010';
+            context.fill();
 
-        const maxRadius = Math.sqrt(
-            Math.pow(canvas.width, 2) + Math.pow(canvas.height, 2),
-        );
-        let radius = 1;
+            radius -= 10;
+            centerText('Ready!', 64, 'Sans-serif', radius / maxRadius);
 
-        const draw = () => {
+            if (radius <= 0) {
+                setState(GameState.Running);
+            }
+            break;
+        }
+        case GameState.GameOver: {
+            const centerX = canvas.width / 2;
+            const centerY = canvas.height / 2;
+
             context.beginPath();
             context.arc(centerX, centerY, radius, 0, Math.PI * 2);
             context.fillStyle = '#802010';
             context.fill();
 
             radius += 10;
-
-            if (radius <= maxRadius) {
-                requestAnimationFrame(draw);
-            }
             centerText('GAME OVER', 64, 'Sans-serif', radius / maxRadius);
-        };
-        draw();
 
-        //TODO: Stop level and wait for button to go to start screen
+            if (radius >= maxRadius) {
+                setState(GameState.Ready);
+            }
+            break;
+        }
+        default:
+            break;
     }
 };
 
-const startLevel = () => {
-    window.removeEventListener('keydown', startLevel);
-    playTune(SFX_START);
-
-    const centerX = canvas.width / 2;
-    const centerY = canvas.height / 2;
-
-    const maxRadius = Math.sqrt(
-        Math.pow(canvas.width, 2) + Math.pow(canvas.height, 2),
-    );
-    let radius = maxRadius;
-
-    window.requestAnimationFrame(gameLoop);
-
-    const draw = () => {
-        context.beginPath();
-        context.arc(centerX, centerY, radius, 0, Math.PI * 2);
-        context.fillStyle = '#206010';
-        context.fill();
-
-        radius -= 10;
-        if (radius > 0) {
-            requestAnimationFrame(draw);
-        }
-        centerText('Ready!', 64, 'Sans-serif', radius / maxRadius);
-    };
-    draw();
-};
-
-export const start = (): void => {
+const drawInitialScreen = (text: string): void => {
     context.fillStyle = '#206010';
     context.rect(0, 0, canvas.width, canvas.height);
     context.fill();
-    centerText('Press any key to start', 32, 'Sans-serif');
+    centerText(text, 32, 'Sans-serif');
+};
 
+export const start = async (): Promise<void> => {
     initializeControls();
-    initialize().then(() => {
-        window.addEventListener('keydown', startLevel);
-    });
+    drawInitialScreen('Loading...');
+    await initialize();
+
+    drawInitialScreen('Press any key to start');
+    await waitForAnyKey();
+
+    setState(GameState.Ready);
+    window.requestAnimationFrame(gameLoop);
 };

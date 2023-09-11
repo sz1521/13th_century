@@ -55,4 +55,15 @@ export const initializeControls = (): void => {
     });
 };
 
+export const waitForAnyKey = (): Promise<void> => {
+    return new Promise((resolve) => {
+        const listener = (): void => {
+            window.removeEventListener('keydown', listener);
+            resolve();
+        };
+
+        window.addEventListener('keydown', listener);
+    });
+};
+
 export const getControls = (): Controls => controls;

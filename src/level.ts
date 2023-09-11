@@ -76,6 +76,7 @@ export class Level implements Scene {
 
         this.camera.follow(this.player);
         this.camera.zoom = 0.5;
+        this.camera.update();
     }
 
     private insertItems(): void {
@@ -109,15 +110,16 @@ export class Level implements Scene {
     }
 
     update(dt: number): void {
+        if (this.state === State.GAME_OVER) {
+            return;
+        }
+
         const now = performance.now();
         const controls = getControls();
 
         this.camera.update();
 
-        if (this.state !== State.GAME_OVER) {
-            // Stop hogging resources
-            this.tapio.update(this, now);
-        }
+        this.tapio.update(this, now);
 
         const objectsToRemove: GameObject[] = [];
 
@@ -248,7 +250,11 @@ export class Level implements Scene {
         context.translate(-this.camera.x, -this.camera.y);
 
         // Fill background
-        context.fillStyle = 'rgb(20, 40, 60)';
+        if (this.playerHasCross() != null) {
+            context.fillStyle = 'rgb(20, 40, 60)';
+        } else {
+            context.fillStyle = 'rgb(0, 20, 40)';
+        }
         context.fillRect(this.x, this.y, this.width, this.height);
 
         // Draw blocks
@@ -264,7 +270,11 @@ export class Level implements Scene {
 
                 switch (block.type) {
                     case BlockType.Wall: {
-                        context.fillStyle = 'rgb(30, 60, 60)';
+                        if (this.playerHasCross() != null) {
+                            context.fillStyle = 'rgb(40, 70, 70)';
+                        } else {
+                            context.fillStyle = 'rgb(10, 40, 40)';
+                        }
                         context.fillRect(
                             x,
                             y - BLOCK_HEIGHT / 2,
@@ -272,7 +282,11 @@ export class Level implements Scene {
                             BLOCK_HEIGHT,
                         );
 
-                        context.fillStyle = 'rgb(50, 100, 100)';
+                        if (this.playerHasCross() != null) {
+                            context.fillStyle = 'rgb(50, 80, 80)';
+                        } else {
+                            context.fillStyle = 'rgb(20, 50, 50)';
+                        }
                         context.fillRect(
                             x,
                             y + BLOCK_HEIGHT / 2,
@@ -284,7 +298,11 @@ export class Level implements Scene {
 
                     case BlockType.Tree: {
                         // Grass:
-                        context.fillStyle = '#005000';
+                        if (this.playerHasCross() != null) {
+                            context.fillStyle = '#005000';
+                        } else {
+                            context.fillStyle = '#003000';
+                        }
                         context.fillRect(x, y, BLOCK_WIDTH, BLOCK_HEIGHT);
 
                         const growthProgress =
@@ -302,6 +320,9 @@ export class Level implements Scene {
                         context.save();
                         context.translate(treeX, treeY);
                         context.scale(sizeRatio, sizeRatio);
+                        if (this.playerHasCross() == null) {
+                            context.filter = 'brightness(0.6)';
+                        }
                         context.drawImage(
                             treeImage,
                             0,
@@ -314,7 +335,11 @@ export class Level implements Scene {
                     }
 
                     case BlockType.Grass: {
-                        context.fillStyle = '#005000';
+                        if (this.playerHasCross() != null) {
+                            context.fillStyle = '#005000';
+                        } else {
+                            context.fillStyle = '#003000';
+                        }
                         context.fillRect(x, y, BLOCK_WIDTH, BLOCK_HEIGHT);
                         break;
                     }

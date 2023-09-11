@@ -63,5 +63,5 @@ export const TREE_IMAGE_WIDTH = 100;
 export const TREE_IMAGE_HEIGHT = 135;
 
 export const crossImage = loadImage(crossSvg);
-export const CROSS_IMAGE_WIDTH = 100;
-export const CROSS_IMAGE_HEIGHT = 135;
+export const CROSS_IMAGE_WIDTH = 40;
+export const CROSS_IMAGE_HEIGHT = 54;
