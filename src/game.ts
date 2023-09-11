@@ -47,7 +47,7 @@ const MAX_FRAME = TIME_STEP * 5;
 const ITEM_FLASHING_TIME_MS = 4000;
 const FLASHING_INTERVAL_MS = 400;
 
-const maxRadius = Math.max(screen.width, screen.height) / 2;
+const maxRadius = Math.max(screen.width, screen.height) / 1.5;
 
 enum GameState {
     Init,

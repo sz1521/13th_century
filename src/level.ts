@@ -355,6 +355,27 @@ export class Level implements Scene {
                             TREE_IMAGE_WIDTH,
                             TREE_IMAGE_HEIGHT,
                         );
+
+                        const centerX = this.playerLocationX;
+                        const centerY = this.playerLocationY;
+                        const radius =
+                            Math.max(canvas.width, canvas.height) /
+                            (this.playerHasCross() ? 1 : 2);
+
+                        const gradient = context.createRadialGradient(
+                            centerX,
+                            centerY,
+                            0,
+                            centerX,
+                            centerY,
+                            radius,
+                        );
+                        gradient.addColorStop(0, 'rgba(0, 0, 0, 0)'); // Transparent at the center
+                        gradient.addColorStop(1, 'rgba(0, 0, 0, 1)'); // Fully black at the outer edge
+
+                        context.fillStyle = gradient;
+                        context.fillRect(0, 0, canvas.width, canvas.height);
+
                         context.restore();
                         break;
                     }
