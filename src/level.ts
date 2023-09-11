@@ -405,9 +405,14 @@ export class Level implements Scene {
 
         const centerX = this.player.x;
         const centerY = this.player.y;
-        const radius =
-            Math.max(canvas.width, canvas.height) /
-            (this.playerHasCross() ? 1 : 2);
+        const visibleAreaLength =
+            Math.max(canvas.width, canvas.height) / this.camera.zoom;
+
+        // In case player is standing at the edge of the level, make
+        // sure that the shadow area covers the entire screen.
+        const shadowAreaLength = 2 * visibleAreaLength;
+
+        const radius = shadowAreaLength / (this.playerHasCross() ? 1 : 2);
 
         const gradient = context.createRadialGradient(
             centerX,
@@ -421,12 +426,11 @@ export class Level implements Scene {
         gradient.addColorStop(1, 'rgba(0, 0, 0, 1)'); // Fully black at the outer edge
 
         context.fillStyle = gradient;
-        console.info(this.camera.zoom);
         context.fillRect(
-            0,
-            0,
-            4096 / this.camera.zoom,
-            2160 / this.camera.zoom,
+            centerX - radius,
+            centerY - radius,
+            2 * radius,
+            2 * radius,
         );
 
         context.restore();
