@@ -21,7 +21,7 @@
  * WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
 
-import { initializeControls, waitForAnyKey } from './controls';
+import { initializeControls, waitForAnyKey, waitForEnter } from './controls';
 import {
     CROSS_IMAGE_HEIGHT,
     CROSS_IMAGE_WIDTH,
@@ -56,6 +56,7 @@ enum GameState {
     Ready,
     Running,
     GameOver,
+    GameFinished,
 }
 
 let gameState: GameState = GameState.Init;
@@ -82,6 +83,9 @@ const setState = (state: GameState): void => {
             radius = 1;
             playTune(SFX_FINISHED);
             break;
+        case GameState.GameFinished:
+            radius = 1;
+            break;
         default:
             break;
     }
@@ -103,6 +107,8 @@ const update = (dt: number): void => {
             level.update(dt);
             if (level.state === State.GAME_OVER) {
                 setState(GameState.GameOver);
+            } else if (level.state === State.FINISHED) {
+                setState(GameState.GameFinished);
             }
             break;
         }
@@ -116,12 +122,17 @@ const centerText = (
     fontSize: number,
     fontName: string,
     alpha = 1,
+    yAdjust = 0,
 ) => {
     context.globalAlpha = alpha > 0 ? alpha : 0;
     context.fillStyle = 'white';
     context.font = fontSize + 'px ' + fontName;
     const textWidth = context.measureText(text).width;
-    context.fillText(text, (canvas.width - textWidth) / 2, canvas.height / 2);
+    context.fillText(
+        text,
+        (canvas.width - textWidth) / 2,
+        canvas.height / 2 + yAdjust,
+    );
     context.globalAlpha = 1;
 };
 
@@ -183,6 +194,30 @@ const draw = (): void => {
 
             if (radius >= maxRadius) {
                 setState(GameState.Ready);
+            }
+            break;
+        }
+        case GameState.GameFinished: {
+            const centerX = canvas.width / 2;
+            const centerY = canvas.height / 2;
+
+            context.beginPath();
+            context.arc(centerX, centerY, radius, 0, Math.PI * 2);
+            context.fillStyle = '#CCCC40';
+            context.fill();
+
+            radius += 10;
+            centerText('GAME FINISHED!', 64, 'Sans-serif', radius / maxRadius);
+            centerText(
+                'Press enter for a new game',
+                32,
+                'Sans-serif',
+                radius / maxRadius,
+                64,
+            );
+
+            if (radius >= maxRadius) {
+                waitForEnter().then(() => setState(GameState.Ready));
             }
             break;
         }

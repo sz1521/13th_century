@@ -50,6 +50,7 @@ const CROSS_EFFECTIVE_TIME_MS = 10000;
 export enum State {
     RUNNING,
     GAME_OVER,
+    FINISHED,
 }
 
 export class Level implements Scene {
@@ -77,6 +78,12 @@ export class Level implements Scene {
         this.camera.follow(this.player);
         this.camera.zoom = 0.5;
         this.camera.update();
+    }
+
+    private setState(newState: State): void {
+        if (newState !== this.state) {
+            this.state = newState;
+        }
     }
 
     private insertItems(): void {
@@ -124,24 +131,31 @@ export class Level implements Scene {
         const objectsToRemove: GameObject[] = [];
 
         for (const o of this.gameObjects) {
-            const movement =
-                o === this.player
-                    ? this.getPlayerMovement(dt, controls)
-                    : this.followPlayer(dt, o);
+            const isPlayer: boolean = o === this.player;
+            const movement = isPlayer
+                ? this.getPlayerMovement(dt, controls)
+                : this.followPlayer(dt, o);
+
             this.move(o, movement);
 
-            if (o !== this.player && o instanceof Character) {
-                if (getDistance(getDifference(o, this.player)) < 60) {
-                    this.state = State.GAME_OVER;
+            if (isPlayer) {
+                if (this.hasReachedExit(o)) {
+                    this.setState(State.FINISHED);
                 }
-            }
+            } else {
+                if (o instanceof Character) {
+                    if (getDistance(getDifference(o, this.player)) < 60) {
+                        this.setState(State.GAME_OVER);
+                    }
+                }
 
-            if (
-                o instanceof Item &&
-                getDistance(getDifference(o, this.player)) < 60
-            ) {
-                objectsToRemove.push(o);
-                this.crossPickTime = now;
+                if (
+                    o instanceof Item &&
+                    getDistance(getDifference(o, this.player)) < 60
+                ) {
+                    objectsToRemove.push(o);
+                    this.crossPickTime = now;
+                }
             }
         }
 
@@ -152,6 +166,11 @@ export class Level implements Scene {
                 );
             }
         }
+    }
+
+    private hasReachedExit(o: GameObject): boolean {
+        // Is at the very right edge of the map.
+        return this.x + this.width - 1.5 * BLOCK_WIDTH < o.x;
     }
 
     private getPlayerMovement(dt: number, controls: Controls): Movement {
