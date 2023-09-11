@@ -102,6 +102,9 @@ export class Level implements Scene {
         this.gameObjects.push(o);
     }
 
+    playerLocationX = canvas.width;
+    playerLocationY = canvas.height;
+
     // return time left
     playerHasCross(): number | undefined {
         const now = performance.now();
@@ -137,6 +140,9 @@ export class Level implements Scene {
                 : this.followPlayer(dt, o);
 
             this.move(o, movement);
+
+            this.playerLocationX = this.player.x;
+            this.playerLocationY = this.player.y;
 
             if (isPlayer) {
                 if (this.hasReachedExit(o)) {

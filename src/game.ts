@@ -47,9 +47,7 @@ const MAX_FRAME = TIME_STEP * 5;
 const ITEM_FLASHING_TIME_MS = 4000;
 const FLASHING_INTERVAL_MS = 400;
 
-const maxRadius = Math.sqrt(
-    Math.pow(canvas.width, 2) + Math.pow(canvas.height, 2),
-);
+const maxRadius = Math.max(screen.width, screen.height) / 2;
 
 enum GameState {
     Init,
@@ -158,8 +156,32 @@ const drawCollectedItems = (): void => {
     }
 };
 
+const drawGradient = () => {
+    // TODO: What are the right coordinates for this to center it to the player?
+    const centerX = level.playerLocationX;
+    const centerY = level.playerLocationY - 200;
+    const radius =
+        Math.max(canvas.width, canvas.height) /
+        (level.playerHasCross() ? 1 : 2);
+
+    const gradient = context.createRadialGradient(
+        centerX,
+        centerY,
+        0,
+        centerX,
+        centerY,
+        radius,
+    );
+    gradient.addColorStop(0, 'rgba(0, 0, 0, 0)'); // Transparent at the center
+    gradient.addColorStop(1, 'rgba(0, 0, 0, 1)'); // Fully black at the outer edge
+
+    context.fillStyle = gradient;
+    context.fillRect(0, 0, canvas.width, canvas.height);
+};
+
 const draw = (): void => {
     level.draw();
+    drawGradient();
     drawCollectedItems();
 
     switch (gameState) {
@@ -167,16 +189,15 @@ const draw = (): void => {
             const centerX = canvas.width / 2;
             const centerY = canvas.height / 2;
 
-            context.beginPath();
-            context.arc(centerX, centerY, radius, 0, Math.PI * 2);
-            context.fillStyle = '#206010';
-            context.fill();
-
-            radius -= 10;
-            centerText('Ready!', 64, 'Sans-serif', radius / maxRadius);
-
             if (radius <= 0) {
                 setState(GameState.Running);
+            } else {
+                context.beginPath();
+                context.arc(centerX, centerY, radius, 0, Math.PI * 2);
+                context.fillStyle = '#206010';
+                context.fill();
+                centerText('Ready!', 64, 'Sans-serif', radius / maxRadius);
+                radius -= 10;
             }
             break;
         }
@@ -188,12 +209,12 @@ const draw = (): void => {
             context.arc(centerX, centerY, radius, 0, Math.PI * 2);
             context.fillStyle = '#802010';
             context.fill();
-
-            radius += 10;
             centerText('GAME OVER', 64, 'Sans-serif', radius / maxRadius);
 
             if (radius >= maxRadius) {
-                setState(GameState.Ready);
+                waitForEnter().then(() => setState(GameState.Ready));
+            } else {
+                radius += 10;
             }
             break;
         }
@@ -206,7 +227,6 @@ const draw = (): void => {
             context.fillStyle = '#CCCC40';
             context.fill();
 
-            radius += 10;
             centerText('GAME FINISHED!', 64, 'Sans-serif', radius / maxRadius);
             centerText(
                 'Press enter for a new game',
@@ -218,6 +238,8 @@ const draw = (): void => {
 
             if (radius >= maxRadius) {
                 waitForEnter().then(() => setState(GameState.Ready));
+            } else {
+                radius += 10;
             }
             break;
         }
