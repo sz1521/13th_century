@@ -349,7 +349,7 @@ export class Level implements Scene {
                             TREE_IMAGE_WIDTH,
                             TREE_IMAGE_HEIGHT,
                         );
-                        
+
                         context.restore();
                         break;
                     }
@@ -408,7 +408,7 @@ export class Level implements Scene {
         const radius =
             Math.max(canvas.width, canvas.height) /
             (this.playerHasCross() ? 1 : 2);
-    
+
         const gradient = context.createRadialGradient(
             centerX,
             centerY,
@@ -419,10 +419,15 @@ export class Level implements Scene {
         );
         gradient.addColorStop(0, 'rgba(0, 0, 0, 0)'); // Transparent at the center
         gradient.addColorStop(1, 'rgba(0, 0, 0, 1)'); // Fully black at the outer edge
-    
+
         context.fillStyle = gradient;
-        console.info(this.camera.zoom)
-        context.fillRect(0, 0, 4096 / this.camera.zoom, 2160 / this.camera.zoom);
+        console.info(this.camera.zoom);
+        context.fillRect(
+            0,
+            0,
+            4096 / this.camera.zoom,
+            2160 / this.camera.zoom,
+        );
 
         context.restore();
     }
