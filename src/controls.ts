@@ -66,4 +66,17 @@ export const waitForAnyKey = (): Promise<void> => {
     });
 };
 
+export const waitForEnter = (): Promise<void> => {
+    return new Promise((resolve) => {
+        const listener = (event: KeyboardEvent): void => {
+            if (event.code === 'Enter') {
+                window.removeEventListener('keydown', listener);
+                resolve();
+            }
+        };
+
+        window.addEventListener('keydown', listener);
+    });
+};
+
 export const getControls = (): Controls => controls;
