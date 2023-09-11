@@ -30,4 +30,6 @@ export interface Scene extends Area {
     map: GridMap;
 
     add(o: GameObject, position: GridPosition): void;
+
+    isNotTooCloseToPlayer(position: GridPosition): boolean;
 }

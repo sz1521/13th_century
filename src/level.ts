@@ -34,7 +34,13 @@ import {
 import { BlockType, GridMap, createMap, isBlocking } from './map';
 import { Character } from './character';
 import { Tapio } from './tapio';
-import { GameObject, Movement, getDifference, getDistance } from './gameobject';
+import {
+    GameObject,
+    Movement,
+    getDifference,
+    getDistance,
+    getDistanceToPoint,
+} from './gameobject';
 import { Scene } from './scene';
 import { GridPosition } from './grid';
 import { Item } from './item';
@@ -94,6 +100,14 @@ export class Level implements Scene {
                 this.add(cross, position);
             }
         }
+    }
+
+    isNotTooCloseToPlayer(position: GridPosition): boolean {
+        const x = this.x + position.xi * BLOCK_WIDTH + BLOCK_WIDTH / 2;
+        const y = this.y + position.yi * BLOCK_HEIGHT + BLOCK_HEIGHT / 2;
+        const distanceToPlayer = getDistanceToPoint(this.player, x, y);
+        const minDistance = this.player.width * 20;
+        return distanceToPlayer > minDistance;
     }
 
     add(o: GameObject, position: GridPosition): void {

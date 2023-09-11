@@ -112,14 +112,20 @@ export class Tapio {
     }
 
     private spawnEnemy(scene: Scene): void {
-        const position = scene.map.findRandomGrass();
+        // Try 5 times
+        for (let i = 0; i < 5; i++) {
+            const position = scene.map.findRandomGrass();
 
-        if (!position) {
-            return;
+            if (!position) {
+                return;
+            }
+
+            if (scene.isNotTooCloseToPlayer(position)) {
+                const enemy = new Character();
+                enemy.isEnemy = true;
+                scene.add(enemy, position);
+                break;
+            }
         }
-
-        const enemy = new Character();
-        enemy.isEnemy = true;
-        scene.add(enemy, position);
     }
 }
