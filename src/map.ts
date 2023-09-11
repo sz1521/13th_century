@@ -157,17 +157,25 @@ export const createMap = (): GridMap => {
     carveRectange(map, 1, 6, 20, 29); // bottom-left room (start)
     map.set(4, 24, { type: BlockType.Grass });
 
-    carveRectange(map, 3, 4, 19, 20); // doorway
-    carveRectange(map, 1, 9, 12, 19);
-    carveRectange(map, 2, 3, 11, 12); // doorway
-    carveRectange(map, 1, 9, 1, 11); // top-left room
-    carveRectange(map, 9, 10, 4, 8); // doorway
+    carveRectange(map, 8, 16, 20, 29); // bottom room
 
-    carveRectange(map, 10, 29, 1, 11); // top-right room
+    carveRectange(map, 2, 4, 19, 20); // bottom-left doorway
+    carveRectange(map, 11, 14, 19, 20); // bottom-center doorway
+
+    carveRectange(map, 1, 16, 12, 19); // left-center room
+    carveRectange(map, 2, 5, 11, 12); // doorway
+    carveRectange(map, 1, 7, 1, 11); // top-left room
+    carveRectange(map, 7, 8, 4, 8); // top-center doorway
+
+    carveRectange(map, 11, 14, 11, 12); // doorway at center
+
+    carveRectange(map, 8, 28, 1, 11); // top-right room
     map.set(16, 6, { type: BlockType.Grass });
 
-    carveRectange(map, 19, 21, 11, 14); // hallway
-    carveRectange(map, 15, 28, 14, 28); // bottom-right room
+    carveRectange(map, 23, 26, 11, 14); // hallway on right
+    carveRectange(map, 20, 28, 14, 28); // bottom-right room
+
+    carveRectange(map, 28, 30, 26, 28);
 
     return map;
 };
