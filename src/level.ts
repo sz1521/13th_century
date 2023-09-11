@@ -422,7 +422,7 @@ export class Level implements Scene {
     
         context.fillStyle = gradient;
         console.info(this.camera.zoom)
-        context.fillRect(0, 0, 4096, 2160);
+        context.fillRect(0, 0, 4096 / this.camera.zoom, 2160 / this.camera.zoom);
 
         context.restore();
     }
