@@ -76,6 +76,7 @@ export class Level implements Scene {
 
         this.camera.follow(this.player);
         this.camera.zoom = 0.5;
+        this.camera.update();
     }
 
     private insertItems(): void {

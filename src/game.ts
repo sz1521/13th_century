@@ -71,16 +71,16 @@ const setState = (state: GameState): void => {
 
     switch (state) {
         case GameState.Ready:
-            playTune(SFX_START);
+            level = new Level();
             radius = maxRadius;
+            playTune(SFX_START);
             break;
         case GameState.Running:
-            level = new Level();
             playTune(SFX_MAIN);
             break;
         case GameState.GameOver:
-            playTune(SFX_FINISHED);
             radius = 1;
+            playTune(SFX_FINISHED);
             break;
         default:
             break;
