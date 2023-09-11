@@ -28,8 +28,9 @@ import { Scene } from './scene';
 import { randomInt } from './utils';
 
 const FOREST_EXPANSION_INTERVAL_MS = 1000;
-const ENEMY_SPAWN_INTERVAL_MS = 12000;
+const ENEMY_SPAWN_INTERVAL_MS = 4000;
 
+const INITIAL_SPAWN_COUNT = 8;
 const MAX_ENEMY_COUNT = 60;
 
 const getEnemySpawnCount = (forestCount: number): number => {
@@ -61,9 +62,10 @@ const findNewPosition = (map: GridMap): GridPosition | undefined => {
 };
 
 export class Tapio {
-    lastExpandTime: number = 0;
-    lastSpawnTime: number = 0;
-    enemySpawnCount: number = 0;
+    private lastExpandTime: number = 0;
+    private lastSpawnTime: number = 0;
+    private enemySpawnCount: number = 0;
+    private firstSpawnDone = false;
 
     update(scene: Scene, now: number): void {
         const map = scene.map;
@@ -71,6 +73,15 @@ export class Tapio {
         if (now - this.lastExpandTime > FOREST_EXPANSION_INTERVAL_MS) {
             this.expandForest(map);
             this.lastExpandTime = now;
+        }
+
+        if (!this.firstSpawnDone) {
+            for (let i = 0; i < INITIAL_SPAWN_COUNT; i++) {
+                this.spawnEnemy(scene);
+            }
+
+            this.firstSpawnDone = true;
+            this.lastSpawnTime = now;
         }
 
         if (

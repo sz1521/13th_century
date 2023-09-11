@@ -51,6 +51,8 @@ const BLOCK_HEIGHT = 100;
 const PLAYER_SPEED = 0.3;
 const ENEMY_SPEED = 0.1;
 
+const ENEMY_FOLLOW_DISTANCE = 800;
+
 const CROSS_EFFECTIVE_TIME_MS = 10000;
 
 export enum State {
@@ -238,7 +240,7 @@ export class Level implements Scene {
         let dx = 0;
         let dy = 0;
 
-        if (50 < distance && distance < 400) {
+        if (30 < distance && distance < ENEMY_FOLLOW_DISTANCE) {
             dx = Math.sign(diff.dx) * ENEMY_SPEED * dt;
             dy = Math.sign(diff.dy) * ENEMY_SPEED * dt;
         }
