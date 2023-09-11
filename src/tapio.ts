@@ -120,7 +120,7 @@ export class Tapio {
                 return;
             }
 
-            if (scene.isNotTooCloseToPlayer(position)) {
+            if (scene.canAddEnemy(position)) {
                 const enemy = new Character();
                 enemy.isEnemy = true;
                 scene.add(enemy, position);

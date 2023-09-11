@@ -102,12 +102,29 @@ export class Level implements Scene {
         }
     }
 
-    isNotTooCloseToPlayer(position: GridPosition): boolean {
+    private getDistanceToObject(o: GameObject, position: GridPosition): number {
         const x = this.x + position.xi * BLOCK_WIDTH + BLOCK_WIDTH / 2;
         const y = this.y + position.yi * BLOCK_HEIGHT + BLOCK_HEIGHT / 2;
-        const distanceToPlayer = getDistanceToPoint(this.player, x, y);
-        const minDistance = this.player.width * 20;
-        return distanceToPlayer > minDistance;
+        return getDistanceToPoint(o, x, y);
+    }
+
+    canAddEnemy(position: GridPosition): boolean {
+        if (
+            this.getDistanceToObject(this.player, position) <
+            this.player.width * 20
+        ) {
+            return false;
+        }
+
+        const tooCloseToOtherEnemies = this.gameObjects.some((o) => {
+            return (
+                o instanceof Character &&
+                o.isEnemy &&
+                this.getDistanceToObject(o, position) < o.width * 3
+            );
+        });
+
+        return !tooCloseToOtherEnemies;
     }
 
     add(o: GameObject, position: GridPosition): void {

@@ -31,5 +31,5 @@ export interface Scene extends Area {
 
     add(o: GameObject, position: GridPosition): void;
 
-    isNotTooCloseToPlayer(position: GridPosition): boolean;
+    canAddEnemy(position: GridPosition): boolean;
 }
