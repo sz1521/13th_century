@@ -53,7 +53,7 @@ const ENEMY_SPEED = 0.1;
 
 const ENEMY_FOLLOW_DISTANCE = 800;
 
-const CROSS_EFFECTIVE_TIME_MS = 10000;
+const CROSS_EFFECTIVE_TIME_MS = 4000;
 
 export enum State {
     RUNNING,
@@ -95,13 +95,12 @@ export class Level implements Scene {
     }
 
     private insertItems(): void {
-        for (let i = 0; i < 8; i++) {
-            const cross = new Item();
-            const position = this.map.findRandomFloor();
-            if (position) {
-                this.add(cross, position);
-            }
-        }
+        this.add(new Item(), { xi: 3, yi: 15 });
+        this.add(new Item(), { xi: 3, yi: 3 });
+        this.add(new Item(), { xi: 9, yi: 25 });
+        this.add(new Item(), { xi: 15, yi: 25 });
+        this.add(new Item(), { xi: 19, yi: 3 });
+        this.add(new Item(), { xi: 21, yi: 26 });
     }
 
     private getDistanceToObject(o: GameObject, position: GridPosition): number {

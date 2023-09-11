@@ -185,6 +185,11 @@ export const createMap = (): GridMap => {
     map.set(27, 1, { type: BlockType.Grass });
     map.set(27, 2, { type: BlockType.Grass });
 
+    map.set(17, 9, { type: BlockType.Grass });
+    map.set(18, 9, { type: BlockType.Grass });
+    map.set(17, 10, { type: BlockType.Grass });
+    map.set(18, 10, { type: BlockType.Grass });
+
     carveRectange(map, 23, 26, 11, 14); // hallway on right
     carveRectange(map, 20, 28, 14, 28); // bottom-right room
     map.set(20, 14, { type: BlockType.Grass });
