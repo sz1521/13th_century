@@ -157,9 +157,9 @@ const drawCollectedItems = (): void => {
 };
 
 const drawGradient = () => {
-    // TODO: What are the right coordinates for this to center it to the player?
-    const centerX = level.playerLocationX;
-    const centerY = level.playerLocationY - 200;
+    // TODO: What are the right coordinates for this to center it to the player in all resolutions?
+    const centerX = level.playerLocationX / 2;
+    const centerY = level.playerLocationY / 2;
     const radius =
         Math.max(canvas.width, canvas.height) /
         (level.playerHasCross() ? 1 : 2);
