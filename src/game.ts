@@ -156,32 +156,8 @@ const drawCollectedItems = (): void => {
     }
 };
 
-const drawGradient = () => {
-    // TODO: What are the right coordinates for this to center it to the player in all resolutions?
-    const centerX = level.playerLocationX / 2;
-    const centerY = level.playerLocationY / 2;
-    const radius =
-        Math.max(canvas.width, canvas.height) /
-        (level.playerHasCross() ? 1 : 2);
-
-    const gradient = context.createRadialGradient(
-        centerX,
-        centerY,
-        0,
-        centerX,
-        centerY,
-        radius,
-    );
-    gradient.addColorStop(0, 'rgba(0, 0, 0, 0)'); // Transparent at the center
-    gradient.addColorStop(1, 'rgba(0, 0, 0, 1)'); // Fully black at the outer edge
-
-    context.fillStyle = gradient;
-    context.fillRect(0, 0, canvas.width, canvas.height);
-};
-
 const draw = (): void => {
     level.draw();
-    drawGradient();
     drawCollectedItems();
 
     switch (gameState) {

@@ -102,9 +102,6 @@ export class Level implements Scene {
         this.gameObjects.push(o);
     }
 
-    playerLocationX = canvas.width;
-    playerLocationY = canvas.height;
-
     // return time left
     playerHasCross(): number | undefined {
         const now = performance.now();
@@ -140,9 +137,6 @@ export class Level implements Scene {
                 : this.followPlayer(dt, o);
 
             this.move(o, movement);
-
-            this.playerLocationX = this.player.x;
-            this.playerLocationY = this.player.y;
 
             if (isPlayer) {
                 if (this.hasReachedExit(o)) {
@@ -355,27 +349,7 @@ export class Level implements Scene {
                             TREE_IMAGE_WIDTH,
                             TREE_IMAGE_HEIGHT,
                         );
-
-                        const centerX = this.playerLocationX;
-                        const centerY = this.playerLocationY;
-                        const radius =
-                            Math.max(canvas.width, canvas.height) /
-                            (this.playerHasCross() ? 1 : 2);
-
-                        const gradient = context.createRadialGradient(
-                            centerX,
-                            centerY,
-                            0,
-                            centerX,
-                            centerY,
-                            radius,
-                        );
-                        gradient.addColorStop(0, 'rgba(0, 0, 0, 0)'); // Transparent at the center
-                        gradient.addColorStop(1, 'rgba(0, 0, 0, 1)'); // Fully black at the outer edge
-
-                        context.fillStyle = gradient;
-                        context.fillRect(0, 0, canvas.width, canvas.height);
-
+                        
                         context.restore();
                         break;
                     }
@@ -428,6 +402,27 @@ export class Level implements Scene {
         //     BLOCK_WIDTH,
         //     BLOCK_HEIGHT,
         // );
+
+        const centerX = this.player.x;
+        const centerY = this.player.y;
+        const radius =
+            Math.max(canvas.width, canvas.height) /
+            (this.playerHasCross() ? 1 : 2);
+    
+        const gradient = context.createRadialGradient(
+            centerX,
+            centerY,
+            0,
+            centerX,
+            centerY,
+            radius,
+        );
+        gradient.addColorStop(0, 'rgba(0, 0, 0, 0)'); // Transparent at the center
+        gradient.addColorStop(1, 'rgba(0, 0, 0, 1)'); // Fully black at the outer edge
+    
+        context.fillStyle = gradient;
+        console.info(this.camera.zoom)
+        context.fillRect(0, 0, canvas.width / this.camera.zoom, canvas.height / this.camera.zoom);
 
         context.restore();
     }
