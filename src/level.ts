@@ -349,6 +349,7 @@ export class Level implements Scene {
                             TREE_IMAGE_WIDTH,
                             TREE_IMAGE_HEIGHT,
                         );
+
                         context.restore();
                         break;
                     }
@@ -401,6 +402,36 @@ export class Level implements Scene {
         //     BLOCK_WIDTH,
         //     BLOCK_HEIGHT,
         // );
+
+        const centerX = this.player.x;
+        const centerY = this.player.y;
+        const visibleAreaLength =
+            Math.max(canvas.width, canvas.height) / this.camera.zoom;
+
+        // In case player is standing at the edge of the level, make
+        // sure that the shadow area covers the entire screen.
+        const shadowAreaLength = 2 * visibleAreaLength;
+
+        const radius = shadowAreaLength / (this.playerHasCross() ? 1 : 2);
+
+        const gradient = context.createRadialGradient(
+            centerX,
+            centerY,
+            0,
+            centerX,
+            centerY,
+            radius,
+        );
+        gradient.addColorStop(0, 'rgba(0, 0, 0, 0)'); // Transparent at the center
+        gradient.addColorStop(1, 'rgba(0, 0, 0, 1)'); // Fully black at the outer edge
+
+        context.fillStyle = gradient;
+        context.fillRect(
+            centerX - radius,
+            centerY - radius,
+            2 * radius,
+            2 * radius,
+        );
 
         context.restore();
     }
