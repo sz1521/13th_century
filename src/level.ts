@@ -350,6 +350,19 @@ export class Level implements Scene {
         const topGridY = Math.floor(viewAreaMinY / BLOCK_HEIGHT);
         const bottomGridY = Math.floor(viewAreaMaxY / BLOCK_HEIGHT) + 2;
 
+        const objectsVisibleOnCamera: GameObject[] = [];
+
+        for (const o of this.gameObjects) {
+            if (
+                viewAreaMinX - BLOCK_WIDTH < o.x &&
+                o.x + o.width < viewAreaMaxX + BLOCK_WIDTH &&
+                viewAreaMinY - BLOCK_WIDTH < o.y &&
+                o.y < viewAreaMaxY + BLOCK_WIDTH
+            ) {
+                objectsVisibleOnCamera.push(o);
+            }
+        }
+
         // Draw blocks
         for (let gridY = topGridY; gridY < bottomGridY; gridY++) {
             for (let gridX = leftGridX; gridX < rightGridX; gridX++) {
@@ -449,7 +462,7 @@ export class Level implements Scene {
             const gameObjectsOnRow: GameObject[] = [];
 
             // Find out game objects that are on the same row.
-            for (const o of this.gameObjects) {
+            for (const o of objectsVisibleOnCamera) {
                 const bottomY = o.y + o.height;
                 const rowTopY = gridY * BLOCK_HEIGHT;
                 const rowBottomY = gridY * BLOCK_HEIGHT + BLOCK_HEIGHT;
