@@ -455,7 +455,7 @@ export class Level implements Scene {
             radius,
         );
         gradient.addColorStop(0, 'rgba(0, 0, 0, 0)'); // Transparent at the center
-        gradient.addColorStop(1, 'rgba(0, 0, 0, 1)'); // Fully black at the outer edge
+        gradient.addColorStop(0.3, 'rgba(0, 0, 0, 1)'); // Fully black at the outer edge
 
         context.fillStyle = gradient;
         context.fillRect(
@@ -464,7 +464,6 @@ export class Level implements Scene {
             2 * radius,
             2 * radius,
         );
-
         context.restore();
     }
 }
