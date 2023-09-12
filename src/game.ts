@@ -206,21 +206,9 @@ const draw = (): void => {
             context.fillStyle = '#CCCC40';
             context.fill();
 
-            centerText(
-                'YOU ESCAPED',
-                48,
-                'Brush Script MT',
-                1,
-                -20,
-            );
+            centerText('YOU ESCAPED', 48, 'Brush Script MT', 1, -20);
             centerText('YOUR PREDECESORS!', 48, 'Brush Script MT', 1, 30);
-            centerText(
-                'Press enter for a new game',
-                32,
-                'Sans-serif',
-                24,
-                100,
-            );
+            centerText('Press enter for a new game', 32, 'Sans-serif', 24, 100);
 
             if (radius >= maxRadius) {
                 waitForEnter().then(() => setState(GameState.Ready));
@@ -241,9 +229,27 @@ const drawInitialScreen = (text: string): void => {
 
     context.filter = 'grayscale()';
     context.globalAlpha = 0.5;
-    context.drawImage(playerNorthStandImage, canvas.width / 2 - 400, canvas.height / 2 - 200, 100, 260);
-    context.drawImage(playerNorthStandImage, canvas.width / 2 + 200, canvas.height / 2 + 100, 100, 260);
-    context.drawImage(crossImage, canvas.width / 2 - 100, canvas.height / 2 + 100, 100, 260);    
+    context.drawImage(
+        playerNorthStandImage,
+        canvas.width / 2 - 400,
+        canvas.height / 2 - 200,
+        100,
+        260,
+    );
+    context.drawImage(
+        playerNorthStandImage,
+        canvas.width / 2 + 200,
+        canvas.height / 2 + 100,
+        100,
+        260,
+    );
+    context.drawImage(
+        crossImage,
+        canvas.width / 2 - 100,
+        canvas.height / 2 + 100,
+        100,
+        260,
+    );
     context.filter = 'grayscale(0)';
     context.save();
 
