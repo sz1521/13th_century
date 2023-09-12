@@ -28,6 +28,7 @@ import {
     canvas,
     context,
     crossImage,
+    playerNorthStandImage,
 } from './graphics';
 import { Level, State } from './level';
 
@@ -40,6 +41,7 @@ import {
     // eslint-disable-next-line @typescript-eslint/ban-ts-comment
     // @ts-ignore
 } from './sfx/sfx.js';
+import { Character } from './character';
 
 const TIME_STEP = 1000 / 60;
 const MAX_FRAME = TIME_STEP * 5;
@@ -170,9 +172,9 @@ const draw = (): void => {
             } else {
                 context.beginPath();
                 context.arc(centerX, centerY, radius, 0, Math.PI * 2);
-                context.fillStyle = '#206010';
+                context.fillStyle = '#105000';
                 context.fill();
-                centerText('Ready!', 64, 'Sans-serif', radius / maxRadius);
+                centerText('Ready!', 64, 'Brush Script MT', radius / maxRadius);
                 radius -= 10;
             }
             break;
@@ -185,7 +187,8 @@ const draw = (): void => {
             context.arc(centerX, centerY, radius, 0, Math.PI * 2);
             context.fillStyle = '#802010';
             context.fill();
-            centerText('GAME OVER', 64, 'Sans-serif', radius / maxRadius);
+            centerText('GAME OVER', 64, 'Brush Script MT', radius / maxRadius);
+            centerText('Press enter key to restart', 24, 'Sans-serif', 1, 80);
 
             if (radius >= maxRadius) {
                 waitForEnter().then(() => setState(GameState.Ready));
@@ -203,14 +206,9 @@ const draw = (): void => {
             context.fillStyle = '#CCCC40';
             context.fill();
 
-            centerText('GAME FINISHED!', 64, 'Sans-serif', radius / maxRadius);
-            centerText(
-                'Press enter for a new game',
-                32,
-                'Sans-serif',
-                radius / maxRadius,
-                64,
-            );
+            centerText('YOU ESCAPED', 48, 'Brush Script MT', 1, -20);
+            centerText('YOUR PREDECESORS!', 48, 'Brush Script MT', 1, 30);
+            centerText('Press enter for a new game', 32, 'Sans-serif', 24, 100);
 
             if (radius >= maxRadius) {
                 waitForEnter().then(() => setState(GameState.Ready));
@@ -225,10 +223,42 @@ const draw = (): void => {
 };
 
 const drawInitialScreen = (text: string): void => {
-    context.fillStyle = '#206010';
+    context.save();
+    context.fillStyle = 'rgb(20, 50, 50)';
     context.rect(0, 0, canvas.width, canvas.height);
     context.fill();
-    centerText(text, 32, 'Sans-serif');
+
+    context.filter = 'grayscale()';
+    context.globalAlpha = 0.5;
+    context.drawImage(
+        playerNorthStandImage,
+        canvas.width / 2 - 400,
+        canvas.height / 2 - 200,
+        100,
+        260,
+    );
+    context.drawImage(
+        playerNorthStandImage,
+        canvas.width / 2 + 200,
+        canvas.height / 2 + 100,
+        100,
+        260,
+    );
+    context.filter = 'grayscale(0)';
+    context.restore();
+
+    context.globalAlpha = 1;
+    context.drawImage(
+        crossImage,
+        canvas.width / 2 - 100,
+        canvas.height / 2 + 100,
+        100,
+        260,
+    );
+    centerText('PREDECESSORS', 64, 'Brush Script MT', 1, -20);
+    centerText('From the 13th century', 24, 'Brush Script MT', 1, 20);
+    centerText(text, 24, 'Sans-serif', 1, 80);
+    context.restore();
 };
 
 export const start = async (): Promise<void> => {
@@ -236,8 +266,8 @@ export const start = async (): Promise<void> => {
     drawInitialScreen('Loading...');
     await initialize();
 
-    drawInitialScreen('Press any key to start');
-    await waitForAnyKey();
+    drawInitialScreen('Press enter key to start');
+    await waitForEnter();
 
     setState(GameState.Ready);
     window.requestAnimationFrame(gameLoop);
