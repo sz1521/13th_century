@@ -174,7 +174,7 @@ const draw = (): void => {
                 context.arc(centerX, centerY, radius, 0, Math.PI * 2);
                 context.fillStyle = '#105000';
                 context.fill();
-                centerText('Ready!', 64, 'Brush Script MT', radius / maxRadius);
+                centerText('Run, hide and find the exit!', 64, 'Brush Script MT', radius / maxRadius);
                 radius -= 10;
             }
             break;
@@ -187,8 +187,13 @@ const draw = (): void => {
             context.arc(centerX, centerY, radius, 0, Math.PI * 2);
             context.fillStyle = '#802010';
             context.fill();
-            centerText('GAME OVER', 64, 'Brush Script MT', radius / maxRadius);
-            centerText('Press enter key to restart', 24, 'Sans-serif', 1, 80);
+            centerText(
+                'CAUGHT BY YOUR PREDECESSORS!',
+                64,
+                'Brush Script MT',
+                radius / maxRadius,
+            );
+            centerText('Press enter as you were given that change', 24, 'Sans-serif', 1, 80);
 
             if (radius >= maxRadius) {
                 waitForEnter().then(() => setState(GameState.Ready));
@@ -206,9 +211,9 @@ const draw = (): void => {
             context.fillStyle = '#CCCC40';
             context.fill();
 
-            centerText('YOU ESCAPED', 48, 'Brush Script MT', 1, -20);
-            centerText('YOUR PREDECESORS!', 48, 'Brush Script MT', 1, 30);
-            centerText('Press enter for a new game', 32, 'Sans-serif', 24, 100);
+            centerText('THIS TIME YOU ESCAPED', 48, 'Brush Script MT', 1, -20);
+            centerText('YOUR PREDECESSORS!', 48, 'Brush Script MT', 1, 30);
+            centerText('Press enter to take your changes again', 32, 'Sans-serif', 24, 100);
 
             if (radius >= maxRadius) {
                 waitForEnter().then(() => setState(GameState.Ready));
@@ -266,7 +271,7 @@ export const start = async (): Promise<void> => {
     drawInitialScreen('Loading...');
     await initialize();
 
-    drawInitialScreen('Press enter key to start');
+    drawInitialScreen('Press enter key to start your escape!');
     await waitForEnter();
 
     setState(GameState.Ready);
