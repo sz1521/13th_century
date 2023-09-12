@@ -223,6 +223,7 @@ const draw = (): void => {
 };
 
 const drawInitialScreen = (text: string): void => {
+    context.save();
     context.fillStyle = 'rgb(20, 50, 50)';
     context.rect(0, 0, canvas.width, canvas.height);
     context.fill();
@@ -243,6 +244,10 @@ const drawInitialScreen = (text: string): void => {
         100,
         260,
     );
+    context.filter = 'grayscale(0)';
+    context.restore();
+
+    context.globalAlpha = 1;
     context.drawImage(
         crossImage,
         canvas.width / 2 - 100,
@@ -250,13 +255,10 @@ const drawInitialScreen = (text: string): void => {
         100,
         260,
     );
-    context.filter = 'grayscale(0)';
-    context.save();
-
-    context.globalAlpha = 1;
     centerText('PREDECESSORS', 64, 'Brush Script MT', 1, -20);
     centerText('From the 13th century', 24, 'Brush Script MT', 1, 20);
     centerText(text, 24, 'Sans-serif', 1, 80);
+    context.restore();
 };
 
 export const start = async (): Promise<void> => {
