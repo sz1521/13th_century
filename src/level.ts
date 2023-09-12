@@ -335,9 +335,23 @@ export class Level implements Scene {
         }
         context.fillRect(this.x, this.y, this.width, this.height);
 
+        // Calculate area that needs to be drawn
+        const viewAreaWidth = canvas.width / this.camera.zoom;
+        const viewAreaHeight = canvas.height / this.camera.zoom;
+
+        const viewAreaMinX = this.camera.x - viewAreaWidth / 2;
+        const viewAreaMaxX = viewAreaMinX + viewAreaWidth;
+        const viewAreaMinY = this.camera.y - viewAreaHeight / 2;
+        const viewAreaMaxY = viewAreaMinY + viewAreaHeight;
+
+        const leftGridX = Math.floor(viewAreaMinX / BLOCK_WIDTH);
+        const rightGridX = Math.floor(viewAreaMaxX / BLOCK_WIDTH) + 1;
+        const topGridY = Math.floor(viewAreaMinY / BLOCK_HEIGHT);
+        const bottomGridY = Math.floor(viewAreaMaxY / BLOCK_HEIGHT) + 2;
+
         // Draw blocks
-        for (let gridY = 0; gridY < this.map.yCount; gridY++) {
-            for (let gridX = 0; gridX < this.map.xCount; gridX++) {
+        for (let gridY = topGridY; gridY < bottomGridY; gridY++) {
+            for (let gridX = leftGridX; gridX < rightGridX; gridX++) {
                 const block = this.map.get(gridX, gridY);
                 if (!block) {
                     continue;
