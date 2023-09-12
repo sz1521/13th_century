@@ -28,7 +28,10 @@ import { Scene } from './scene';
 import { randomInt } from './utils';
 
 const FOREST_EXPANSION_INTERVAL_MS = 1000;
-const ENEMY_SPAWN_INTERVAL_MS = 12000;
+const ENEMY_SPAWN_INTERVAL_MS = 4000;
+
+const INITIAL_SPAWN_COUNT = 8;
+const MAX_ENEMY_COUNT = 60;
 
 const getEnemySpawnCount = (forestCount: number): number => {
     // Number of enemies spawned is proportional to the amount of forest
@@ -59,8 +62,10 @@ const findNewPosition = (map: GridMap): GridPosition | undefined => {
 };
 
 export class Tapio {
-    lastExpandTime: number = 0;
-    lastSpawnTime: number = 0;
+    private lastExpandTime: number = 0;
+    private lastSpawnTime: number = 0;
+    private enemySpawnCount: number = 0;
+    private firstSpawnDone = false;
 
     update(scene: Scene, now: number): void {
         const map = scene.map;
@@ -70,7 +75,19 @@ export class Tapio {
             this.lastExpandTime = now;
         }
 
-        if (now - this.lastSpawnTime > ENEMY_SPAWN_INTERVAL_MS) {
+        if (!this.firstSpawnDone) {
+            for (let i = 0; i < INITIAL_SPAWN_COUNT; i++) {
+                this.spawnEnemy(scene);
+            }
+
+            this.firstSpawnDone = true;
+            this.lastSpawnTime = now;
+        }
+
+        if (
+            now - this.lastSpawnTime > ENEMY_SPAWN_INTERVAL_MS &&
+            this.enemySpawnCount <= MAX_ENEMY_COUNT
+        ) {
             const numberOfEnemies = getEnemySpawnCount(map.forestCount);
 
             // console.log('Number of forest tiles:', map.forestCount);
@@ -112,14 +129,22 @@ export class Tapio {
     }
 
     private spawnEnemy(scene: Scene): void {
-        const position = scene.map.findRandomGrass();
+        // Try 5 times
+        for (let i = 0; i < 5; i++) {
+            const position = scene.map.findRandomGrass();
 
-        if (!position) {
-            return;
+            if (!position) {
+                return;
+            }
+
+            if (scene.canAddEnemy(position)) {
+                const enemy = new Character();
+                enemy.isEnemy = true;
+                scene.add(enemy, position);
+
+                this.enemySpawnCount++;
+                break;
+            }
         }
-
-        const enemy = new Character();
-        enemy.isEnemy = true;
-        scene.add(enemy, position);
     }
 }

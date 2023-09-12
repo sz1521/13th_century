@@ -42,6 +42,16 @@ export const getDifference = (c: GameObject, other: GameObject): Movement => {
     return { dx, dy };
 };
 
+export const getDistanceToPoint = (
+    c: GameObject,
+    x: number,
+    y: number,
+): number => {
+    const dx = Math.abs(x - (c.x + c.width / 2));
+    const dy = Math.abs(y - (c.y + c.height / 2));
+    return dx + dy;
+};
+
 export const getDistance = (movement: Movement): number => {
     return Math.abs(movement.dx) + Math.abs(movement.dy);
 };

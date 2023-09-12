@@ -155,25 +155,49 @@ export const createMap = (): GridMap => {
     const map = new GridMap();
 
     carveRectange(map, 1, 6, 20, 29); // bottom-left room (start)
-    map.set(4, 24, { type: BlockType.Grass });
-
-    carveRectange(map, 8, 16, 20, 29); // bottom room
-
+    carveRectange(map, 8, 16, 20, 29); // bottom-center room
     carveRectange(map, 2, 4, 19, 20); // bottom-left doorway
     carveRectange(map, 11, 14, 19, 20); // bottom-center doorway
 
     carveRectange(map, 1, 16, 12, 19); // left-center room
+    map.set(8, 17, { type: BlockType.Grass });
+    map.set(8, 18, { type: BlockType.Grass });
+    map.set(9, 18, { type: BlockType.Grass });
+
+    map.set(14, 12, { type: BlockType.Grass });
+    map.set(15, 12, { type: BlockType.Grass });
+    map.set(15, 13, { type: BlockType.Grass });
+
     carveRectange(map, 2, 5, 11, 12); // doorway
     carveRectange(map, 1, 7, 1, 11); // top-left room
+    map.set(1, 10, { type: BlockType.Grass });
     carveRectange(map, 7, 8, 4, 8); // top-center doorway
 
     carveRectange(map, 11, 14, 11, 12); // doorway at center
 
     carveRectange(map, 8, 28, 1, 11); // top-right room
-    map.set(16, 6, { type: BlockType.Grass });
+    map.set(12, 3, { type: BlockType.Grass });
+    map.set(13, 3, { type: BlockType.Grass });
+
+    map.set(25, 1, { type: BlockType.Grass });
+    map.set(26, 1, { type: BlockType.Grass });
+    map.set(26, 2, { type: BlockType.Grass });
+    map.set(27, 1, { type: BlockType.Grass });
+    map.set(27, 2, { type: BlockType.Grass });
+
+    map.set(17, 9, { type: BlockType.Grass });
+    map.set(18, 9, { type: BlockType.Grass });
+    map.set(17, 10, { type: BlockType.Grass });
+    map.set(18, 10, { type: BlockType.Grass });
 
     carveRectange(map, 23, 26, 11, 14); // hallway on right
     carveRectange(map, 20, 28, 14, 28); // bottom-right room
+    map.set(20, 14, { type: BlockType.Grass });
+    map.set(21, 14, { type: BlockType.Grass });
+    map.set(20, 15, { type: BlockType.Grass });
+
+    map.set(23, 27, { type: BlockType.Grass });
+    map.set(24, 27, { type: BlockType.Grass });
 
     carveRectange(map, 28, 30, 26, 28);
 

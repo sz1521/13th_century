@@ -34,7 +34,13 @@ import {
 import { BlockType, GridMap, createMap, isBlocking } from './map';
 import { Character } from './character';
 import { Tapio } from './tapio';
-import { GameObject, Movement, getDifference, getDistance } from './gameobject';
+import {
+    GameObject,
+    Movement,
+    getDifference,
+    getDistance,
+    getDistanceToPoint,
+} from './gameobject';
 import { Scene } from './scene';
 import { GridPosition } from './grid';
 import { Item } from './item';
@@ -45,7 +51,9 @@ const BLOCK_HEIGHT = 100;
 const PLAYER_SPEED = 0.3;
 const ENEMY_SPEED = 0.1;
 
-const CROSS_EFFECTIVE_TIME_MS = 10000;
+const ENEMY_FOLLOW_DISTANCE = 800;
+
+const CROSS_EFFECTIVE_TIME_MS = 4000;
 
 export enum State {
     RUNNING,
@@ -87,13 +95,37 @@ export class Level implements Scene {
     }
 
     private insertItems(): void {
-        for (let i = 0; i < 8; i++) {
-            const cross = new Item();
-            const position = this.map.findRandomFloor();
-            if (position) {
-                this.add(cross, position);
-            }
+        this.add(new Item(), { xi: 3, yi: 15 });
+        this.add(new Item(), { xi: 3, yi: 3 });
+        this.add(new Item(), { xi: 9, yi: 25 });
+        this.add(new Item(), { xi: 15, yi: 25 });
+        this.add(new Item(), { xi: 19, yi: 3 });
+        this.add(new Item(), { xi: 21, yi: 26 });
+    }
+
+    private getDistanceToObject(o: GameObject, position: GridPosition): number {
+        const x = this.x + position.xi * BLOCK_WIDTH + BLOCK_WIDTH / 2;
+        const y = this.y + position.yi * BLOCK_HEIGHT + BLOCK_HEIGHT / 2;
+        return getDistanceToPoint(o, x, y);
+    }
+
+    canAddEnemy(position: GridPosition): boolean {
+        if (
+            this.getDistanceToObject(this.player, position) <
+            this.player.width * 20
+        ) {
+            return false;
         }
+
+        const tooCloseToOtherEnemies = this.gameObjects.some((o) => {
+            return (
+                o instanceof Character &&
+                o.isEnemy &&
+                this.getDistanceToObject(o, position) < o.width * 3
+            );
+        });
+
+        return !tooCloseToOtherEnemies;
     }
 
     add(o: GameObject, position: GridPosition): void {
@@ -207,7 +239,7 @@ export class Level implements Scene {
         let dx = 0;
         let dy = 0;
 
-        if (50 < distance && distance < 400) {
+        if (30 < distance && distance < ENEMY_FOLLOW_DISTANCE) {
             dx = Math.sign(diff.dx) * ENEMY_SPEED * dt;
             dy = Math.sign(diff.dy) * ENEMY_SPEED * dt;
         }
