@@ -139,10 +139,8 @@ const flashing = (now: number): boolean => {
     return Math.floor(now / FLASHING_INTERVAL_MS) % 2 === 0;
 };
 
-const drawCollectedItems = (): void => {
-    const now = performance.now();
-
-    const crossTimeLeft = level.playerHasCross();
+const drawCollectedItems = (now: number): void => {
+    const crossTimeLeft = level.playerHasCross(now);
 
     if (crossTimeLeft != null) {
         if (crossTimeLeft > ITEM_FLASHING_TIME_MS || flashing(now)) {
@@ -158,8 +156,10 @@ const drawCollectedItems = (): void => {
 };
 
 const draw = (): void => {
-    level.draw();
-    drawCollectedItems();
+    const now = performance.now();
+
+    level.draw(now);
+    drawCollectedItems(now);
 
     switch (gameState) {
         case GameState.Ready: {

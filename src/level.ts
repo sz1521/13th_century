@@ -142,9 +142,7 @@ export class Level implements Scene {
     }
 
     // return time left
-    playerHasCross(): number | undefined {
-        const now = performance.now();
-
+    playerHasCross(now: number): number | undefined {
         if (this.crossPickTime == null) {
             return undefined;
         }
@@ -173,7 +171,7 @@ export class Level implements Scene {
             const isPlayer: boolean = o === this.player;
             const movement = isPlayer
                 ? this.getPlayerMovement(dt, controls)
-                : this.followPlayer(dt, o);
+                : this.followPlayer(dt, now, o);
 
             this.move(o, movement);
 
@@ -259,7 +257,7 @@ export class Level implements Scene {
         return { dx, dy };
     }
 
-    private followPlayer(dt: number, o: GameObject): Movement {
+    private followPlayer(dt: number, now: number, o: GameObject): Movement {
         const diff = getDifference(o, this.player);
         const distance = getDistance(diff);
         let dx = 0;
@@ -270,7 +268,7 @@ export class Level implements Scene {
             dy = Math.sign(diff.dy) * ENEMY_SPEED * dt;
         }
 
-        if (this.playerHasCross() != null) {
+        if (this.playerHasCross(now) != null) {
             // Slow down enemies
             dx = dx * 0.2;
             dy = dy * 0.2;
@@ -317,8 +315,9 @@ export class Level implements Scene {
         o.move({ dx, dy });
     }
 
-    draw(): void {
-        const now = performance.now();
+    draw(now: number): void {
+        const cross: boolean = this.playerHasCross(now) != null;
+
         context.save();
 
         // Apply camera
@@ -327,7 +326,7 @@ export class Level implements Scene {
         context.translate(-this.camera.x, -this.camera.y);
 
         // Fill background
-        if (this.playerHasCross() != null) {
+        if (cross) {
             context.fillStyle = 'rgb(20, 40, 60)';
         } else {
             context.fillStyle = 'rgb(0, 20, 40)';
@@ -374,7 +373,7 @@ export class Level implements Scene {
 
                 switch (block.type) {
                     case BlockType.Wall: {
-                        if (this.playerHasCross() != null) {
+                        if (cross) {
                             context.fillStyle = 'rgb(40, 70, 70)';
                         } else {
                             context.fillStyle = 'rgb(10, 40, 40)';
@@ -386,7 +385,7 @@ export class Level implements Scene {
                             BLOCK_HEIGHT,
                         );
 
-                        if (this.playerHasCross() != null) {
+                        if (cross) {
                             context.fillStyle = 'rgb(50, 80, 80)';
                         } else {
                             context.fillStyle = 'rgb(20, 50, 50)';
@@ -402,7 +401,7 @@ export class Level implements Scene {
 
                     case BlockType.Tree: {
                         // Grass:
-                        if (this.playerHasCross() != null) {
+                        if (cross) {
                             context.fillStyle = '#005000';
                         } else {
                             context.fillStyle = '#003000';
@@ -424,7 +423,7 @@ export class Level implements Scene {
                         context.save();
                         context.translate(treeX, treeY);
                         context.scale(sizeRatio, sizeRatio);
-                        if (this.playerHasCross() == null) {
+                        if (this.playerHasCross(now) == null) {
                             context.filter = 'brightness(0.6)';
                         }
                         context.drawImage(
@@ -440,7 +439,7 @@ export class Level implements Scene {
                     }
 
                     case BlockType.Grass: {
-                        if (this.playerHasCross() != null) {
+                        if (cross) {
                             context.fillStyle = '#005000';
                         } else {
                             context.fillStyle = '#003000';
@@ -497,7 +496,7 @@ export class Level implements Scene {
         // sure that the shadow area covers the entire screen.
         const shadowAreaLength = 2 * visibleAreaLength;
 
-        const radius = shadowAreaLength / (this.playerHasCross() ? 1 : 2);
+        const radius = shadowAreaLength / (cross ? 1 : 2);
 
         const gradient = context.createRadialGradient(
             centerX,
