@@ -28,6 +28,7 @@ import {
     canvas,
     context,
     crossImage,
+    playerNorthStandImage,
 } from './graphics';
 import { Level, State } from './level';
 
@@ -40,6 +41,7 @@ import {
     // eslint-disable-next-line @typescript-eslint/ban-ts-comment
     // @ts-ignore
 } from './sfx/sfx.js';
+import { Character } from './character';
 
 const TIME_STEP = 1000 / 60;
 const MAX_FRAME = TIME_STEP * 5;
@@ -234,9 +236,17 @@ const draw = (): void => {
 
 const drawInitialScreen = (text: string): void => {
     context.fillStyle = 'rgb(20, 50, 50)';
-
     context.rect(0, 0, canvas.width, canvas.height);
     context.fill();
+    
+    context.filter = 'grayscale()';
+    context.globalAlpha = 0.5;
+    context.drawImage(playerNorthStandImage, canvas.width / 2 - 400, canvas.height / 2 - 200, 100, 260);
+    context.drawImage(playerNorthStandImage, canvas.width / 2 + 200, canvas.height / 2 + 100, 100, 260);    
+    context.filter = 'grayscale(0)';
+    context.save();
+
+    context.globalAlpha = 1;
     centerText('PREDECESSORS', 64, 'Brush Script MT', 1, -20);
     centerText('From the 13th century', 24, 'Brush Script MT', 1, 20);
     centerText(text, 24, 'Sans-serif', 1, 80);
