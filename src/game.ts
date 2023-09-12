@@ -21,7 +21,7 @@
  * WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
 
-import { initializeControls, waitForAnyKey, waitForEnter } from './controls';
+import { initializeControls, waitForEnter } from './controls';
 import {
     CROSS_IMAGE_HEIGHT,
     CROSS_IMAGE_WIDTH,
@@ -41,7 +41,6 @@ import {
     // eslint-disable-next-line @typescript-eslint/ban-ts-comment
     // @ts-ignore
 } from './sfx/sfx.js';
-import { Character } from './character';
 
 const TIME_STEP = 1000 / 60;
 const MAX_FRAME = TIME_STEP * 5;
@@ -140,10 +139,8 @@ const flashing = (now: number): boolean => {
     return Math.floor(now / FLASHING_INTERVAL_MS) % 2 === 0;
 };
 
-const drawCollectedItems = (): void => {
-    const now = performance.now();
-
-    const crossTimeLeft = level.playerHasCross();
+const drawCollectedItems = (now: number): void => {
+    const crossTimeLeft = level.playerHasCross(now);
 
     if (crossTimeLeft != null) {
         if (crossTimeLeft > ITEM_FLASHING_TIME_MS || flashing(now)) {
@@ -159,8 +156,10 @@ const drawCollectedItems = (): void => {
 };
 
 const draw = (): void => {
-    level.draw();
-    drawCollectedItems();
+    const now = performance.now();
+
+    level.draw(now);
+    drawCollectedItems(now);
 
     switch (gameState) {
         case GameState.Ready: {

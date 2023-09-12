@@ -22,7 +22,15 @@
  */
 
 // These must match the definitions in KeyboardEvent.code
-export type Key = 'ArrowLeft' | 'ArrowRight' | 'ArrowUp' | 'ArrowDown';
+export type Key =
+    | 'ArrowLeft'
+    | 'ArrowRight'
+    | 'ArrowUp'
+    | 'ArrowDown'
+    | 'KeyW'
+    | 'KeyA'
+    | 'KeyS'
+    | 'KeyD';
 
 export type Controls = Record<Key, boolean>;
 
@@ -31,6 +39,10 @@ const createControls = (): Controls => ({
     ['ArrowRight']: false,
     ['ArrowUp']: false,
     ['ArrowDown']: false,
+    ['KeyW']: false,
+    ['KeyA']: false,
+    ['KeyS']: false,
+    ['KeyD']: false,
 });
 
 let controls: Controls = createControls();

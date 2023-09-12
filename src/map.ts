@@ -160,7 +160,15 @@ export const createMap = (): GridMap => {
     carveRectange(map, 11, 14, 19, 20); // bottom-center doorway
 
     carveRectange(map, 1, 16, 12, 19); // left-center room
+    map.set(7, 16, { type: BlockType.Grass });
+    map.set(8, 16, { type: BlockType.Grass });
+    map.set(9, 16, { type: BlockType.Grass });
+    map.set(6, 17, { type: BlockType.Grass });
+    map.set(7, 17, { type: BlockType.Grass });
     map.set(8, 17, { type: BlockType.Grass });
+    map.set(9, 17, { type: BlockType.Grass });
+    map.set(6, 18, { type: BlockType.Grass });
+    map.set(7, 18, { type: BlockType.Grass });
     map.set(8, 18, { type: BlockType.Grass });
     map.set(9, 18, { type: BlockType.Grass });
 
@@ -170,6 +178,9 @@ export const createMap = (): GridMap => {
 
     carveRectange(map, 2, 5, 11, 12); // doorway
     carveRectange(map, 1, 7, 1, 11); // top-left room
+    map.set(1, 7, { type: BlockType.Grass });
+    map.set(1, 8, { type: BlockType.Grass });
+    map.set(1, 9, { type: BlockType.Grass });
     map.set(1, 10, { type: BlockType.Grass });
     carveRectange(map, 7, 8, 4, 8); // top-center doorway
 
@@ -178,17 +189,43 @@ export const createMap = (): GridMap => {
     carveRectange(map, 8, 28, 1, 11); // top-right room
     map.set(12, 3, { type: BlockType.Grass });
     map.set(13, 3, { type: BlockType.Grass });
+    map.set(13, 4, { type: BlockType.Grass });
+    map.set(14, 3, { type: BlockType.Grass });
+    map.set(14, 4, { type: BlockType.Grass });
 
     map.set(25, 1, { type: BlockType.Grass });
     map.set(26, 1, { type: BlockType.Grass });
-    map.set(26, 2, { type: BlockType.Grass });
     map.set(27, 1, { type: BlockType.Grass });
+    map.set(26, 2, { type: BlockType.Grass });
     map.set(27, 2, { type: BlockType.Grass });
+    map.set(26, 3, { type: BlockType.Grass });
+    map.set(27, 3, { type: BlockType.Grass });
 
+    map.set(26, 6, { type: BlockType.Grass });
+    map.set(27, 6, { type: BlockType.Grass });
+    map.set(26, 7, { type: BlockType.Grass });
+    map.set(27, 7, { type: BlockType.Grass });
+    map.set(26, 8, { type: BlockType.Grass });
+    map.set(27, 8, { type: BlockType.Grass });
+    map.set(26, 9, { type: BlockType.Grass });
+    map.set(27, 9, { type: BlockType.Grass });
+    map.set(26, 10, { type: BlockType.Grass });
+    map.set(27, 10, { type: BlockType.Grass });
+
+    map.set(16, 8, { type: BlockType.Grass });
+    map.set(17, 8, { type: BlockType.Grass });
+    map.set(18, 8, { type: BlockType.Grass });
+    map.set(19, 8, { type: BlockType.Grass });
+    map.set(16, 9, { type: BlockType.Grass });
     map.set(17, 9, { type: BlockType.Grass });
     map.set(18, 9, { type: BlockType.Grass });
+    map.set(19, 9, { type: BlockType.Grass });
+    map.set(20, 9, { type: BlockType.Grass });
+    map.set(16, 10, { type: BlockType.Grass });
     map.set(17, 10, { type: BlockType.Grass });
     map.set(18, 10, { type: BlockType.Grass });
+    map.set(19, 10, { type: BlockType.Grass });
+    map.set(20, 10, { type: BlockType.Grass });
 
     carveRectange(map, 23, 26, 11, 14); // hallway on right
     carveRectange(map, 20, 28, 14, 28); // bottom-right room
@@ -196,8 +233,23 @@ export const createMap = (): GridMap => {
     map.set(21, 14, { type: BlockType.Grass });
     map.set(20, 15, { type: BlockType.Grass });
 
+    map.set(24, 24, { type: BlockType.Grass });
+    map.set(25, 24, { type: BlockType.Grass });
+    map.set(26, 24, { type: BlockType.Grass });
+
+    map.set(24, 25, { type: BlockType.Grass });
+    map.set(25, 25, { type: BlockType.Grass });
+    map.set(26, 25, { type: BlockType.Grass });
+
+    map.set(23, 26, { type: BlockType.Grass });
+    map.set(24, 26, { type: BlockType.Grass });
+    map.set(25, 26, { type: BlockType.Grass });
+    map.set(26, 26, { type: BlockType.Grass });
+
     map.set(23, 27, { type: BlockType.Grass });
     map.set(24, 27, { type: BlockType.Grass });
+    map.set(25, 27, { type: BlockType.Grass });
+    map.set(26, 27, { type: BlockType.Grass });
 
     carveRectange(map, 28, 30, 26, 28);
 

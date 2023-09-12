@@ -61,11 +61,19 @@ export enum State {
     FINISHED,
 }
 
+enum MovementAxis {
+    None,
+    Horizontal,
+    Vertical,
+}
+
 export class Level implements Scene {
     private camera: Camera = new Camera(this, canvas);
     private player: Character = new Character();
     private tapio: Tapio = new Tapio();
     private gameObjects: GameObject[] = [];
+
+    private lastMovement: MovementAxis = MovementAxis.None;
 
     private crossPickTime?: number;
 
@@ -83,8 +91,9 @@ export class Level implements Scene {
 
         this.insertItems();
 
+        const screenSize = (canvas.width + canvas.height) / 2; // Average of width and height
         this.camera.follow(this.player);
-        this.camera.zoom = 0.5;
+        this.camera.zoom = screenSize / (14 * BLOCK_WIDTH);
         this.camera.update();
     }
 
@@ -97,10 +106,8 @@ export class Level implements Scene {
     private insertItems(): void {
         this.add(new Item(), { xi: 3, yi: 15 });
         this.add(new Item(), { xi: 3, yi: 3 });
-        this.add(new Item(), { xi: 9, yi: 25 });
-        this.add(new Item(), { xi: 15, yi: 25 });
-        this.add(new Item(), { xi: 19, yi: 3 });
-        this.add(new Item(), { xi: 21, yi: 26 });
+        this.add(new Item(), { xi: 12, yi: 24 });
+        this.add(new Item(), { xi: 19, yi: 2 });
     }
 
     private getDistanceToObject(o: GameObject, position: GridPosition): number {
@@ -135,9 +142,7 @@ export class Level implements Scene {
     }
 
     // return time left
-    playerHasCross(): number | undefined {
-        const now = performance.now();
-
+    playerHasCross(now: number): number | undefined {
         if (this.crossPickTime == null) {
             return undefined;
         }
@@ -166,7 +171,7 @@ export class Level implements Scene {
             const isPlayer: boolean = o === this.player;
             const movement = isPlayer
                 ? this.getPlayerMovement(dt, controls)
-                : this.followPlayer(dt, o);
+                : this.followPlayer(dt, now, o);
 
             this.move(o, movement);
 
@@ -176,7 +181,7 @@ export class Level implements Scene {
                 }
             } else {
                 if (o instanceof Character) {
-                    if (getDistance(getDifference(o, this.player)) < 60) {
+                    if (getDistance(getDifference(o, this.player)) < 40) {
                         this.setState(State.GAME_OVER);
                     }
                 }
@@ -213,27 +218,46 @@ export class Level implements Scene {
             return { dx: 0, dy: 0 };
         }
 
-        // Calculate movement according to controls
-        if (controls.ArrowLeft && this.x <= this.player.x) {
-            dx = -PLAYER_SPEED * dt;
-        } else if (
-            controls.ArrowRight &&
-            this.player.x + this.player.width <= this.x + this.width
-        ) {
-            dx = PLAYER_SPEED * dt;
-        } else if (controls.ArrowUp && this.y <= this.player.y) {
-            dy = -PLAYER_SPEED * dt;
-        } else if (
-            controls.ArrowDown &&
-            this.player.y + this.player.height <= this.y + this.height
-        ) {
-            dy = PLAYER_SPEED * dt;
+        const left = controls.ArrowLeft || controls.KeyA;
+        const right = controls.ArrowRight || controls.KeyD;
+        const up = controls.ArrowUp || controls.KeyW;
+        const down = controls.ArrowDown || controls.KeyS;
+
+        let horizontal = left || right;
+        let vertical = up || down;
+
+        if (horizontal && vertical) {
+            if (this.lastMovement === MovementAxis.Horizontal) {
+                horizontal = false;
+            } else if (this.lastMovement === MovementAxis.Vertical) {
+                vertical = false;
+            }
+        } else if (horizontal) {
+            this.lastMovement = MovementAxis.Horizontal;
+        } else if (vertical) {
+            this.lastMovement = MovementAxis.Vertical;
+        }
+
+        if (horizontal) {
+            if (left) {
+                dx -= PLAYER_SPEED * dt;
+            }
+            if (right) {
+                dx += PLAYER_SPEED * dt;
+            }
+        } else if (vertical) {
+            if (up) {
+                dy -= PLAYER_SPEED * dt;
+            }
+            if (down) {
+                dy += PLAYER_SPEED * dt;
+            }
         }
 
         return { dx, dy };
     }
 
-    private followPlayer(dt: number, o: GameObject): Movement {
+    private followPlayer(dt: number, now: number, o: GameObject): Movement {
         const diff = getDifference(o, this.player);
         const distance = getDistance(diff);
         let dx = 0;
@@ -244,10 +268,10 @@ export class Level implements Scene {
             dy = Math.sign(diff.dy) * ENEMY_SPEED * dt;
         }
 
-        if (this.playerHasCross() != null) {
-            // Evade player instead.
-            dx = -(dx / 3);
-            dy = -(dy / 3);
+        if (this.playerHasCross(now) != null) {
+            // Slow down enemies
+            dx = dx * 0.2;
+            dy = dy * 0.2;
         }
 
         return { dx, dy };
@@ -291,8 +315,9 @@ export class Level implements Scene {
         o.move({ dx, dy });
     }
 
-    draw(): void {
-        const now = performance.now();
+    draw(now: number): void {
+        const cross: boolean = this.playerHasCross(now) != null;
+
         context.save();
 
         // Apply camera
@@ -301,16 +326,43 @@ export class Level implements Scene {
         context.translate(-this.camera.x, -this.camera.y);
 
         // Fill background
-        if (this.playerHasCross() != null) {
+        if (cross) {
             context.fillStyle = 'rgb(20, 40, 60)';
         } else {
             context.fillStyle = 'rgb(0, 20, 40)';
         }
         context.fillRect(this.x, this.y, this.width, this.height);
 
+        // Calculate area that needs to be drawn
+        const viewAreaWidth = canvas.width / this.camera.zoom;
+        const viewAreaHeight = canvas.height / this.camera.zoom;
+
+        const viewAreaMinX = this.camera.x - viewAreaWidth / 2;
+        const viewAreaMaxX = viewAreaMinX + viewAreaWidth;
+        const viewAreaMinY = this.camera.y - viewAreaHeight / 2;
+        const viewAreaMaxY = viewAreaMinY + viewAreaHeight;
+
+        const leftGridX = Math.floor(viewAreaMinX / BLOCK_WIDTH);
+        const rightGridX = Math.floor(viewAreaMaxX / BLOCK_WIDTH) + 1;
+        const topGridY = Math.floor(viewAreaMinY / BLOCK_HEIGHT);
+        const bottomGridY = Math.floor(viewAreaMaxY / BLOCK_HEIGHT) + 2;
+
+        const objectsVisibleOnCamera: GameObject[] = [];
+
+        for (const o of this.gameObjects) {
+            if (
+                viewAreaMinX - BLOCK_WIDTH < o.x &&
+                o.x + o.width < viewAreaMaxX + BLOCK_WIDTH &&
+                viewAreaMinY - BLOCK_WIDTH < o.y &&
+                o.y < viewAreaMaxY + BLOCK_WIDTH
+            ) {
+                objectsVisibleOnCamera.push(o);
+            }
+        }
+
         // Draw blocks
-        for (let gridY = 0; gridY < this.map.yCount; gridY++) {
-            for (let gridX = 0; gridX < this.map.xCount; gridX++) {
+        for (let gridY = topGridY; gridY < bottomGridY; gridY++) {
+            for (let gridX = leftGridX; gridX < rightGridX; gridX++) {
                 const block = this.map.get(gridX, gridY);
                 if (!block) {
                     continue;
@@ -321,7 +373,7 @@ export class Level implements Scene {
 
                 switch (block.type) {
                     case BlockType.Wall: {
-                        if (this.playerHasCross() != null) {
+                        if (cross) {
                             context.fillStyle = 'rgb(40, 70, 70)';
                         } else {
                             context.fillStyle = 'rgb(10, 40, 40)';
@@ -333,7 +385,7 @@ export class Level implements Scene {
                             BLOCK_HEIGHT,
                         );
 
-                        if (this.playerHasCross() != null) {
+                        if (cross) {
                             context.fillStyle = 'rgb(50, 80, 80)';
                         } else {
                             context.fillStyle = 'rgb(20, 50, 50)';
@@ -349,7 +401,7 @@ export class Level implements Scene {
 
                     case BlockType.Tree: {
                         // Grass:
-                        if (this.playerHasCross() != null) {
+                        if (cross) {
                             context.fillStyle = '#005000';
                         } else {
                             context.fillStyle = '#003000';
@@ -371,7 +423,7 @@ export class Level implements Scene {
                         context.save();
                         context.translate(treeX, treeY);
                         context.scale(sizeRatio, sizeRatio);
-                        if (this.playerHasCross() == null) {
+                        if (this.playerHasCross(now) == null) {
                             context.filter = 'brightness(0.6)';
                         }
                         context.drawImage(
@@ -387,7 +439,7 @@ export class Level implements Scene {
                     }
 
                     case BlockType.Grass: {
-                        if (this.playerHasCross() != null) {
+                        if (cross) {
                             context.fillStyle = '#005000';
                         } else {
                             context.fillStyle = '#003000';
@@ -407,7 +459,7 @@ export class Level implements Scene {
             const gameObjectsOnRow: GameObject[] = [];
 
             // Find out game objects that are on the same row.
-            for (const o of this.gameObjects) {
+            for (const o of objectsVisibleOnCamera) {
                 const bottomY = o.y + o.height;
                 const rowTopY = gridY * BLOCK_HEIGHT;
                 const rowBottomY = gridY * BLOCK_HEIGHT + BLOCK_HEIGHT;
@@ -444,7 +496,7 @@ export class Level implements Scene {
         // sure that the shadow area covers the entire screen.
         const shadowAreaLength = 2 * visibleAreaLength;
 
-        const radius = shadowAreaLength / (this.playerHasCross() ? 1 : 2);
+        const radius = shadowAreaLength / (cross ? 1 : 2);
 
         const gradient = context.createRadialGradient(
             centerX,
