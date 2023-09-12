@@ -61,11 +61,19 @@ export enum State {
     FINISHED,
 }
 
+enum MovementAxis {
+    None,
+    Horizontal,
+    Vertical,
+}
+
 export class Level implements Scene {
     private camera: Camera = new Camera(this, canvas);
     private player: Character = new Character();
     private tapio: Tapio = new Tapio();
     private gameObjects: GameObject[] = [];
+
+    private lastMovement: MovementAxis = MovementAxis.None;
 
     private crossPickTime?: number;
 
@@ -213,21 +221,35 @@ export class Level implements Scene {
             return { dx: 0, dy: 0 };
         }
 
-        // Calculate movement according to controls
-        if (controls.ArrowLeft && this.x <= this.player.x) {
-            dx = -PLAYER_SPEED * dt;
-        } else if (
-            controls.ArrowRight &&
-            this.player.x + this.player.width <= this.x + this.width
-        ) {
-            dx = PLAYER_SPEED * dt;
-        } else if (controls.ArrowUp && this.y <= this.player.y) {
-            dy = -PLAYER_SPEED * dt;
-        } else if (
-            controls.ArrowDown &&
-            this.player.y + this.player.height <= this.y + this.height
-        ) {
-            dy = PLAYER_SPEED * dt;
+        let horizontal = controls.ArrowLeft || controls.ArrowRight;
+        let vertical = controls.ArrowUp || controls.ArrowDown;
+
+        if (horizontal && vertical) {
+            if (this.lastMovement === MovementAxis.Horizontal) {
+                horizontal = false;
+            } else if (this.lastMovement === MovementAxis.Vertical) {
+                vertical = false;
+            }
+        } else if (horizontal) {
+            this.lastMovement = MovementAxis.Horizontal;
+        } else if (vertical) {
+            this.lastMovement = MovementAxis.Vertical;
+        }
+
+        if (horizontal) {
+            if (controls.ArrowLeft) {
+                dx -= PLAYER_SPEED * dt;
+            }
+            if (controls.ArrowRight) {
+                dx += PLAYER_SPEED * dt;
+            }
+        } else if (vertical) {
+            if (controls.ArrowUp) {
+                dy -= PLAYER_SPEED * dt;
+            }
+            if (controls.ArrowDown) {
+                dy += PLAYER_SPEED * dt;
+            }
         }
 
         return { dx, dy };
