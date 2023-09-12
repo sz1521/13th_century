@@ -221,8 +221,13 @@ export class Level implements Scene {
             return { dx: 0, dy: 0 };
         }
 
-        let horizontal = controls.ArrowLeft || controls.ArrowRight;
-        let vertical = controls.ArrowUp || controls.ArrowDown;
+        const left = controls.ArrowLeft || controls.KeyA;
+        const right = controls.ArrowRight || controls.KeyD;
+        const up = controls.ArrowUp || controls.KeyW;
+        const down = controls.ArrowDown || controls.KeyS;
+
+        let horizontal = left || right;
+        let vertical = up || down;
 
         if (horizontal && vertical) {
             if (this.lastMovement === MovementAxis.Horizontal) {
@@ -237,17 +242,17 @@ export class Level implements Scene {
         }
 
         if (horizontal) {
-            if (controls.ArrowLeft) {
+            if (left) {
                 dx -= PLAYER_SPEED * dt;
             }
-            if (controls.ArrowRight) {
+            if (right) {
                 dx += PLAYER_SPEED * dt;
             }
         } else if (vertical) {
-            if (controls.ArrowUp) {
+            if (up) {
                 dy -= PLAYER_SPEED * dt;
             }
-            if (controls.ArrowDown) {
+            if (down) {
                 dy += PLAYER_SPEED * dt;
             }
         }
