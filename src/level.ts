@@ -106,10 +106,8 @@ export class Level implements Scene {
     private insertItems(): void {
         this.add(new Item(), { xi: 3, yi: 15 });
         this.add(new Item(), { xi: 3, yi: 3 });
-        this.add(new Item(), { xi: 9, yi: 25 });
         this.add(new Item(), { xi: 15, yi: 25 });
-        this.add(new Item(), { xi: 19, yi: 3 });
-        this.add(new Item(), { xi: 21, yi: 26 });
+        this.add(new Item(), { xi: 19, yi: 2 });
     }
 
     private getDistanceToObject(o: GameObject, position: GridPosition): number {
@@ -273,9 +271,9 @@ export class Level implements Scene {
         }
 
         if (this.playerHasCross() != null) {
-            // Evade player instead.
-            dx = -(dx / 3);
-            dy = -(dy / 3);
+            // Slow down enemies
+            dx = dx * 0.2;
+            dy = dy * 0.2;
         }
 
         return { dx, dy };
