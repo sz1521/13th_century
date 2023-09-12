@@ -183,7 +183,7 @@ export class Level implements Scene {
                 }
             } else {
                 if (o instanceof Character) {
-                    if (getDistance(getDifference(o, this.player)) < 60) {
+                    if (getDistance(getDifference(o, this.player)) < 40) {
                         this.setState(State.GAME_OVER);
                     }
                 }
