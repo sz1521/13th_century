@@ -217,7 +217,7 @@ const draw = (): void => {
                 32,
                 'Sans-serif',
                 24,
-                80,
+                100,
             );
 
             if (radius >= maxRadius) {
