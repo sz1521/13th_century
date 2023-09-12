@@ -187,12 +187,10 @@ export const createMap = (): GridMap => {
     carveRectange(map, 11, 14, 11, 12); // doorway at center
 
     carveRectange(map, 8, 28, 1, 11); // top-right room
-    map.set(12, 2, { type: BlockType.Grass });
-    map.set(13, 2, { type: BlockType.Grass });
     map.set(12, 3, { type: BlockType.Grass });
-    map.set(14, 3, { type: BlockType.Grass });
     map.set(13, 3, { type: BlockType.Grass });
     map.set(13, 4, { type: BlockType.Grass });
+    map.set(14, 3, { type: BlockType.Grass });
     map.set(14, 4, { type: BlockType.Grass });
 
     map.set(25, 1, { type: BlockType.Grass });

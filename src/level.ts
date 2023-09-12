@@ -106,7 +106,7 @@ export class Level implements Scene {
     private insertItems(): void {
         this.add(new Item(), { xi: 3, yi: 15 });
         this.add(new Item(), { xi: 3, yi: 3 });
-        this.add(new Item(), { xi: 15, yi: 25 });
+        this.add(new Item(), { xi: 12, yi: 24 });
         this.add(new Item(), { xi: 19, yi: 2 });
     }
 

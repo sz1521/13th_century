@@ -30,7 +30,7 @@ import { randomInt } from './utils';
 const FOREST_EXPANSION_INTERVAL_MS = 1000;
 const ENEMY_SPAWN_INTERVAL_MS = 4000;
 
-const INITIAL_SPAWN_COUNT = 8;
+const INITIAL_SPAWN_COUNT = 10;
 const MAX_ENEMY_COUNT = 60;
 
 const getEnemySpawnCount = (forestCount: number): number => {
