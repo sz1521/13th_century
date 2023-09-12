@@ -91,8 +91,9 @@ export class Level implements Scene {
 
         this.insertItems();
 
+        const screenSize = (canvas.width + canvas.height) / 2; // Average of width and height
         this.camera.follow(this.player);
-        this.camera.zoom = 0.5;
+        this.camera.zoom = screenSize / (12 * BLOCK_WIDTH);
         this.camera.update();
     }
 
