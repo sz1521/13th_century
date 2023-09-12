@@ -21,7 +21,7 @@
  * WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
 
-import { initializeControls, waitForAnyKey, waitForEnter } from './controls';
+import { initializeControls, waitForEnter } from './controls';
 import {
     CROSS_IMAGE_HEIGHT,
     CROSS_IMAGE_WIDTH,
@@ -41,7 +41,6 @@ import {
     // eslint-disable-next-line @typescript-eslint/ban-ts-comment
     // @ts-ignore
 } from './sfx/sfx.js';
-import { Character } from './character';
 
 const TIME_STEP = 1000 / 60;
 const MAX_FRAME = TIME_STEP * 5;
