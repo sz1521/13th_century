@@ -238,11 +238,12 @@ const drawInitialScreen = (text: string): void => {
     context.fillStyle = 'rgb(20, 50, 50)';
     context.rect(0, 0, canvas.width, canvas.height);
     context.fill();
-    
+
     context.filter = 'grayscale()';
     context.globalAlpha = 0.5;
     context.drawImage(playerNorthStandImage, canvas.width / 2 - 400, canvas.height / 2 - 200, 100, 260);
-    context.drawImage(playerNorthStandImage, canvas.width / 2 + 200, canvas.height / 2 + 100, 100, 260);    
+    context.drawImage(playerNorthStandImage, canvas.width / 2 + 200, canvas.height / 2 + 100, 100, 260);
+    context.drawImage(crossImage, canvas.width / 2 - 100, canvas.height / 2 + 100, 100, 260);    
     context.filter = 'grayscale(0)';
     context.save();
 
