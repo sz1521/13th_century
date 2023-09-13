@@ -51,7 +51,7 @@ const BLOCK_HEIGHT = 100;
 const PLAYER_SPEED = 0.3;
 const ENEMY_SPEED = 0.1;
 
-const ENEMY_FOLLOW_DISTANCE = 800;
+const ENEMY_FOLLOW_DISTANCE = 600;
 
 const CROSS_EFFECTIVE_TIME_MS = 4000;
 
@@ -68,9 +68,25 @@ enum MovementAxis {
 }
 
 export class Level implements Scene {
+    constructor(spawnCount: number) {
+        this.add(this.player, { xi: 2, yi: 28 });
+
+        this.insertItems();
+
+        const screenSize = (canvas.width + canvas.height) / 2; // Average of width and height
+        this.camera.follow(this.player);
+        this.camera.zoom = screenSize / (14 * BLOCK_WIDTH);
+        this.camera.update();
+
+        this.spawnCount = spawnCount;
+
+        this.tapio = new Tapio(this.spawnCount);
+    }
+
     private camera: Camera = new Camera(this, canvas);
     private player: Character = new Character();
-    private tapio: Tapio = new Tapio();
+    private spawnCount: number = 10;
+    private tapio: Tapio;
     private gameObjects: GameObject[] = [];
 
     private lastMovement: MovementAxis = MovementAxis.None;
@@ -85,17 +101,6 @@ export class Level implements Scene {
     height = this.map.yCount * BLOCK_HEIGHT;
 
     state: State = State.RUNNING;
-
-    constructor() {
-        this.add(this.player, { xi: 2, yi: 28 });
-
-        this.insertItems();
-
-        const screenSize = (canvas.width + canvas.height) / 2; // Average of width and height
-        this.camera.follow(this.player);
-        this.camera.zoom = screenSize / (14 * BLOCK_WIDTH);
-        this.camera.update();
-    }
 
     private setState(newState: State): void {
         if (newState !== this.state) {

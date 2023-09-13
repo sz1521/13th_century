@@ -48,6 +48,9 @@ const MAX_FRAME = TIME_STEP * 5;
 const ITEM_FLASHING_TIME_MS = 2000;
 const FLASHING_INTERVAL_MS = 400;
 
+let spawns = 0;
+let successes = 0;
+
 const maxRadius = Math.max(screen.width, screen.height) / 1.5;
 
 enum GameState {
@@ -64,14 +67,14 @@ let gameState: GameState = GameState.Init;
 let radius = 0;
 
 let lastTime = 0;
-let level: Level = new Level();
+let level: Level = new Level(spawns);
 
 const setState = (state: GameState): void => {
     gameState = state;
 
     switch (state) {
         case GameState.Ready:
-            level = new Level();
+            level = new Level(spawns);
             radius = maxRadius;
             playTune(SFX_START);
             break;
@@ -83,6 +86,8 @@ const setState = (state: GameState): void => {
             playTune(SFX_FINISHED);
             break;
         case GameState.GameFinished:
+            successes++;
+            spawns = spawns + 5; // Make it harder this time
             radius = 1;
             break;
         default:
@@ -198,7 +203,7 @@ const draw = (): void => {
                 radius / maxRadius,
             );
             centerText(
-                'Press enter as you were given that change',
+                'Press enter as you were given that change.',
                 24,
                 'Sans-serif',
                 1,
@@ -222,13 +227,28 @@ const draw = (): void => {
             context.fill();
 
             centerText('THIS TIME YOU ESCAPED', 48, 'Brush Script MT', 1, -20);
-            centerText('YOUR PREDECESSORS!', 48, 'Brush Script MT', 1, 30);
             centerText(
-                'Press enter to take your changes again',
+                'YOUR PREDECESSORS ' +
+                    successes +
+                    (successes > 1 ? ' TIMES!' : ' TIME!'),
+                48,
+                'Brush Script MT',
+                1,
+                30,
+            );
+            centerText(
+                'Press enter to take your changes again.',
                 32,
                 'Sans-serif',
                 24,
                 100,
+            );
+            centerText(
+                '... But they are waiting for you now!',
+                32,
+                'Sans-serif',
+                24,
+                150,
             );
 
             if (radius >= maxRadius) {

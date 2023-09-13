@@ -28,10 +28,9 @@ import { Scene } from './scene';
 import { randomInt } from './utils';
 
 const FOREST_EXPANSION_INTERVAL_MS = 1000;
-const ENEMY_SPAWN_INTERVAL_MS = 4000;
+const ENEMY_SPAWN_INTERVAL_MS = 6000;
 
-const INITIAL_SPAWN_COUNT = 10;
-const MAX_ENEMY_COUNT = 60;
+let maxEnemyCount = 0;
 
 const getEnemySpawnCount = (forestCount: number): number => {
     // Number of enemies spawned is proportional to the amount of forest
@@ -62,13 +61,22 @@ const findNewPosition = (map: GridMap): GridPosition | undefined => {
 };
 
 export class Tapio {
+    constructor(spawnCount: number) {
+        this.spawnCount = spawnCount;
+        maxEnemyCount = maxEnemyCount < 60 ? (5 + spawnCount) * 3 : 60;
+    }
+
     private lastExpandTime: number = 0;
     private lastSpawnTime: number = 0;
     private enemySpawnCount: number = 0;
     private firstSpawnDone = false;
+    private spawnCount: number = 1;
 
     update(scene: Scene, now: number): void {
         const map = scene.map;
+
+        // DEBUG
+        // console.info(this.spawnCount);
 
         if (now - this.lastExpandTime > FOREST_EXPANSION_INTERVAL_MS) {
             this.expandForest(map);
@@ -76,7 +84,7 @@ export class Tapio {
         }
 
         if (!this.firstSpawnDone) {
-            for (let i = 0; i < INITIAL_SPAWN_COUNT; i++) {
+            for (let i = 0; i < this.spawnCount; i++) {
                 this.spawnEnemy(scene);
             }
 
@@ -86,14 +94,12 @@ export class Tapio {
 
         if (
             now - this.lastSpawnTime > ENEMY_SPAWN_INTERVAL_MS &&
-            this.enemySpawnCount <= MAX_ENEMY_COUNT
+            this.enemySpawnCount <= maxEnemyCount
         ) {
             const numberOfEnemies = getEnemySpawnCount(map.forestCount);
 
             // console.log('Number of forest tiles:', map.forestCount);
             // console.log('Spawning', numberOfEnemies, 'enemies!');
-
-            // TODO: sound effect?
 
             for (let i = 0; i < numberOfEnemies; i++) {
                 this.spawnEnemy(scene);
